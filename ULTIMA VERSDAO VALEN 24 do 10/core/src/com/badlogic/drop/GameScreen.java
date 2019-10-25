@@ -52,6 +52,7 @@ public class GameScreen implements Screen {
     private Array<Soldier> soldiers;
     private int count_soldier;
     private ShapeRenderer sR;
+    private Actor actor;
 
     public GameScreen(final Drop game) {
         this.game = game;
@@ -146,30 +147,44 @@ public class GameScreen implements Screen {
         sR.setProjectionMatrix(camera.combined);
         batch.begin();
         batch.draw(background, 0 , 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-        sR.begin(ShapeType.Filled);
-        sR.setColor(Color.BLUE);
                 
 		for (Shoot shoot : shoots) {
-                    sR.rect(shoot.x, shoot.y, shoot.width, shoot.height);
                     batch.draw(shoot.getImagem(), shoot.x, shoot.y);
 		}
                 for (Zombie zombie : zombies) {
-                    sR.rect(zombie.x, zombie.y, zombie.width, zombie.height);
                     batch.draw(zombie.getImagem(), zombie.x, zombie.y);
                 }
                 for (Soldier soldier : soldiers){
-                    sR.rect(soldier.x, soldier.y, soldier.width, soldier.height);
                     batch.draw(soldier.getImagem(), soldier.x, soldier.y);
                 }
         font.draw(batch, String.valueOf(count_raindrops), 10, 470);
-        sR.end();
         batch.end();
-		switch (state) {
+        
+//        sR.begin(ShapeType.Filled);
+//        sR.setColor(Color.BLUE);
+//        for (Shoot shoot : shoots) {
+//            sR.rect(shoot.x, shoot.y, shoot.width, shoot.height);
+//        }
+//        for (Zombie zombie : zombies) {
+//            sR.rect(zombie.x, zombie.y, zombie.width, zombie.height);
+//
+//        }
+//        for (Soldier soldier : soldiers){
+//            sR.rect(soldier.x, soldier.y, soldier.width, soldier.height);
+//        }        
+//        sR.end();
+        
+	switch (state) {
             case RUN:
                 // VAI JOGAR IFS DE INPUT AQUIIIIIIIIIIIIIIIIIIIII AAAAAAAAAAAAAA
                 
             	//ATENÇAOOOOOOOOOOO EM CIMA
-                if (Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)) {
+                
+                if (Gdx.input.isButtonPressed(Input.Buttons.LEFT)){
+                
+                }
+                
+                if (Gdx.input.isButtonPressed(Input.Buttons.LEFT)) {
                     Vector3 touchPos = new Vector3();
                     touchPos.set(Gdx.input.getX(), Gdx.input.getY(), 0);
                     camera.unproject(touchPos);

@@ -41,6 +41,7 @@ public class Soldier extends Rectangle {
         this.height = height;
         this.setImagem(imagem);
         this.setHealth(health);
+        this.reloadTime = reloadTime;
     }
 
     public long getLastShotTime() {
