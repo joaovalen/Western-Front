@@ -9,9 +9,9 @@ import java.util.ArrayList;
 
 public class Shoot extends Rectangle{
     
-    private int speed = 200;
-    private int damage = 100;
-    private Texture imagem = new Texture(Gdx.files.internal("bullet.png"));
+    private int speed;
+    private int damage;
+    private Texture imagem;
 
     public int getDamage() {
         return damage;

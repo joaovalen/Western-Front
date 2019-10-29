@@ -8,15 +8,18 @@ import com.badlogic.gdx.utils.TimeUtils;
 public class Soldier extends Rectangle {
 
     private int health;
-    private Texture imagem = new Texture(Gdx.files.internal("soldier.png"));
+    private Texture imagem;
+    private Texture imagemBala;
     private long lastShotTime;
-    private int reloadTime;
+    private long reloadTime;
+    private int bulletSpeed;
+    private int damage;
 
-    public int getReloadTime() {
+    public long getReloadTime() {
         return reloadTime;
     }
 
-    public void setReloadTime(int reloadTime) {
+    public void setReloadTime(long reloadTime) {
         this.reloadTime = reloadTime;
     }
 
@@ -36,12 +39,16 @@ public class Soldier extends Rectangle {
         this.health = health;
     }
 
-    public Soldier(int width, int height, int health, int reloadTime, Texture imagem) {
-        this.width = width; 
-        this.height = height;
-        this.setImagem(imagem);
-        this.setHealth(health);
+    public Soldier(int width, int height, int health, long reloadTime, Texture imagem, int bulletSpeed, int damage, Texture imagemBala) {
+        this.imagem = imagem;
+        this.width = imagem.getWidth(); 
+        this.height = imagem.getHeight();
+        this.imagem = imagem;
+        this.health = health;
         this.reloadTime = reloadTime;
+        this.bulletSpeed = bulletSpeed;
+        this.damage = damage;
+        this.imagemBala = imagemBala;
     }
 
     public long getLastShotTime() {
@@ -50,6 +57,30 @@ public class Soldier extends Rectangle {
 
     public void setLastShotTime(long lastShotTime) {
         this.lastShotTime = lastShotTime;
+    }
+
+    public int getBulletSpeed() {
+        return bulletSpeed;
+    }
+
+    public void setBulletSpeed(int bulletSpeed) {
+        this.bulletSpeed = bulletSpeed;
+    }
+
+    public int getDamage() {
+        return damage;
+    }
+
+    public void setDamage(int damage) {
+        this.damage = damage;
+    }
+
+    public Texture getImagemBala() {
+        return imagemBala;
+    }
+
+    public void setImagemBala(Texture imagemBala) {
+        this.imagemBala = imagemBala;
     }
     
     

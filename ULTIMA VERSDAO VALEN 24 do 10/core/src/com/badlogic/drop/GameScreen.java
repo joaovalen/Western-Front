@@ -53,6 +53,7 @@ public class GameScreen implements Screen {
     private int count_soldier;
     private ShapeRenderer sR;
     private Actor actor;
+    private int municao;
 
     public GameScreen(final Drop game) {
         this.game = game;
@@ -93,6 +94,7 @@ public class GameScreen implements Screen {
         zombies = new Array<>();
         spawnZombie();     
         count_zombies = 0;
+        municao = 0;
         soldiers = new Array<>();
 
     }
@@ -123,6 +125,9 @@ public class GameScreen implements Screen {
         Shoot shoot = new Shoot();
         shoot.x = soldier.x + soldier.width/2;
         shoot.y = soldier.y + soldier.height/2 - 9;
+        shoot.setDamage(soldier.getDamage());
+        shoot.setSpeed(soldier.getBulletSpeed());
+        shoot.setImagem(soldier.getImagemBala(  ));
         shoots.add(shoot);
         soldier.setLastShotTime(TimeUtils.nanoTime());
     }
@@ -184,7 +189,7 @@ public class GameScreen implements Screen {
                 
                 }
                 
-                if (Gdx.input.isButtonPressed(Input.Buttons.LEFT)) {
+                if (Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)) {
                     Vector3 touchPos = new Vector3();
                     touchPos.set(Gdx.input.getX(), Gdx.input.getY(), 0);
                     camera.unproject(touchPos);

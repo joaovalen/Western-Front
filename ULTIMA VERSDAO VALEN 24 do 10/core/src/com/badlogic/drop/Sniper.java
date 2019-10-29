@@ -15,7 +15,7 @@ import com.badlogic.gdx.graphics.Texture;
 public class Sniper extends Soldier{
     
     public Sniper() {
-        super(64, 92, 300, 1000000000, new Texture(Gdx.files.internal("sniper.png")));
+        super(64, 92, 300, 1000000000, new Texture(Gdx.files.internal("sniper.png")), 1000, 500, new Texture(Gdx.files.internal("bullet.png")));
     }
     
 }
