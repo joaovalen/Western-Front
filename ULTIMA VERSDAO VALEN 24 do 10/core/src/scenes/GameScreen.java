@@ -1,5 +1,10 @@
-package com.badlogic.drop;
+package scenes;
 
+import sprites.Atirador;
+import sprites.Shoot;
+import sprites.Sniper;
+import sprites.Soldier;
+import sprites.Zombie;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
@@ -31,14 +36,15 @@ import java.util.Iterator;
 public class GameScreen implements Screen {
 
     private final Drop game;
-    private Texture shootImage;
-    private Texture zombieImage;
-    private Texture soldierImage;
-    private Texture background;
-//    private Sound dropSound;
-//    private Music rainMusic;
+    // Textures
+    private final Texture shootImage;
+    private final Texture zombieImage;
+    private final Texture soldierImage;
+    private final Texture background;
+    // Camera and Sprite Batch
     private OrthographicCamera camera;
     private SpriteBatch batch;
+    // Objects
     private Array<Shoot> shoots;
     private long lastDropTime;
     private Array<Zombie> zombies;
@@ -57,17 +63,15 @@ public class GameScreen implements Screen {
 
     public GameScreen(final Drop game) {
         this.game = game;
-		//set initial state
-		state = State.RUN;
-
-
-        // load the images for the droplet and the bucket, 64x64 pixels each
+	//set initial state
+	state = State.RUN;
+        // Creating Textures
         shootImage = new Texture(Gdx.files.internal("bullet.png"));
         zombieImage = new Texture(Gdx.files.internal("zombie.png"));
         soldierImage = new Texture(Gdx.files.internal("soldier.png"));
         background = new Texture(Gdx.files.internal("mapa.png"));
 
-        // load the drop sound effect and the rain background "music"
+        // Loading Music and Effects 
 //        dropSound = Gdx.audio.newSound(Gdx.files.internal("drop.wav"));
 //        rainMusic = Gdx.audio.newMusic(Gdx.files.internal("Akatsuki.mp3"));
         

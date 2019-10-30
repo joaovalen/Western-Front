@@ -1,4 +1,4 @@
-package com.badlogic.drop;
+package scenes;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
