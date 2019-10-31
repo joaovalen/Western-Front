@@ -22,6 +22,7 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.TimeUtils;
 
 import java.util.Iterator;
+import sprites.Support;
 
 public class GameScreen implements Screen {
 
@@ -125,6 +126,14 @@ public class GameScreen implements Screen {
         shoots.add(shoot);
         soldier.setLastShotTime(TimeUtils.nanoTime());
     }
+    
+    private void spawnSupport(Vector3 pos){
+        Support soldier = new Support();
+        soldier.x = pos.x - soldier.width/2;
+        soldier.y = pos.y - soldier.height/2;
+        soldiers.add(soldier);
+        
+    }
 
     @Override
     public void render(float delta) {
@@ -187,10 +196,13 @@ public class GameScreen implements Screen {
                     Vector3 touchPos = new Vector3();
                     touchPos.set(Gdx.input.getX(), Gdx.input.getY(), 0);
                     camera.unproject(touchPos);
-                    if(random(0, 1) == 1){
+                    int temp = random(0, 2);
+                    if(temp == 1){
                         spawnAtirador(touchPos);
-                    }else{
+                    }else if(temp == 2){
                         spawnSniper(touchPos);
+                    }else{
+                        spawnSupport(touchPos);
                     }
                 }
 
@@ -201,7 +213,9 @@ public class GameScreen implements Screen {
                 batch.begin();
                 for (Soldier soldier : soldiers) {
                     if (TimeUtils.nanoTime() - soldier.getLastShotTime() > soldier.getReloadTime()) {
-                        spawnShoot(soldier);
+                        if(soldier.getClass().getName().equals('Sniper') || soldier.getClass().getName().equals('Atirador')){
+                            spawnShoot(soldier);
+                        }   
                     }
                     font.draw(batch, Integer.toString(soldier.getHealth()), soldier.x + 20, soldier.y + soldier.getHeight() + 15);
                 }
