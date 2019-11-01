@@ -213,7 +213,7 @@ public class GameScreen implements Screen {
                 batch.begin();
                 for (Soldier soldier : soldiers) {
                     if (TimeUtils.nanoTime() - soldier.getLastShotTime() > soldier.getReloadTime()) {
-                        if(soldier.getClass().getName().equals('Sniper') || soldier.getClass().getName().equals('Atirador')){
+                        if(soldier.getClass().getSimpleName().equals("Sniper") || soldier.getClass().getSimpleName().equals("Atirador")){
                             spawnShoot(soldier);
                         }   
                     }
