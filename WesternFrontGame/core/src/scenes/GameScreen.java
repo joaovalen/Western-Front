@@ -16,6 +16,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.MathUtils;
 import static com.badlogic.gdx.math.MathUtils.random;
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.utils.Array;
@@ -50,7 +51,9 @@ public class GameScreen implements Screen {
     private int count_soldier;
     private ShapeRenderer sR;
     private Actor actor;
-    private int municao;
+    private int currency;
+    private Array<Rectangle> munitions;
+    private Texture munitionImage;
 
     public GameScreen(final WesternFront game) {
         this.game = game;
@@ -61,6 +64,7 @@ public class GameScreen implements Screen {
         zombieImage = new Texture(Gdx.files.internal("zombie.png"));
         soldierImage = new Texture(Gdx.files.internal("soldier.png"));
         background = new Texture(Gdx.files.internal("mapa.png"));
+        munitionImage = new Texture(Gdx.files.internal("munition.png"));
 
         // Loading Music and Effects 
 //        dropSound = Gdx.audio.newSound(Gdx.files.internal("drop.wav"));
@@ -87,9 +91,9 @@ public class GameScreen implements Screen {
         shoots = new Array<>();
         count_raindrops = 0;
         zombies = new Array<>();
-        spawnZombie();     
+        munitions = new Array<>();
         count_zombies = 0;
-        municao = 0;
+        currency = 0;
         soldiers = new Array<>();
 
     }
@@ -134,6 +138,62 @@ public class GameScreen implements Screen {
         soldiers.add(soldier);
         
     }
+    
+    private void spawnMunition(Soldier soldier){
+        Rectangle munition = new Rectangle();
+        munition.x = soldier.x + 12;
+        munition.y = soldier.y + soldier.height - 10;
+        munitions.add(munition);
+    }
+    
+    private void updateZombies(){
+        for (Iterator<Zombie> zb = zombies.iterator(); zb.hasNext(); ) {
+            Zombie zombie = zb.next();
+            zombie.x += -zombie.getSpeed() * Gdx.graphics.getDeltaTime();
+            if (zombie.x < 0 - zombie.width){
+                zb.remove();
+            }
+            for (Iterator<Soldier> it = soldiers.iterator(); it.hasNext(); ){
+                Soldier soldier = it.next();
+
+                if(zombie.overlaps(soldier)){
+                    zombie.x += zombie.getSpeed() * Gdx.graphics.getDeltaTime();
+
+                    if (TimeUtils.nanoTime() - zombie.getLastAttackTime() > zombie.getReloadTime()) {
+                        if(zombie.getFirstAttack() == true)
+                            soldier.setHealth(soldier.getHealth() - zombie.getDamage());
+                            zombie.setLastAttackTime(TimeUtils.nanoTime());  
+                            if (soldier.getHealth() <= 0) {
+                                it.remove();
+                                zombie.setFirstAttack(false);
+                            }
+                        zombie.setFirstAttack(true);
+                    }
+                }
+            }
+            font.draw(batch, Integer.toString(zombie.getHealth()), zombie.x + 20, zombie.y + zombie.getHeight() + 15);
+        }        
+    }
+    
+    private void updateShoots(){
+        for (Iterator<Shoot> it = shoots.iterator(); it.hasNext(); ) {
+            Shoot shoot = it.next();
+            shoot.x += shoot.getSpeed() * Gdx.graphics.getDeltaTime();
+            //check if it is beyond the screen
+            if (shoot.x > Gdx.graphics.getWidth())
+                it.remove();
+            for (Iterator<Zombie> zb = zombies.iterator(); zb.hasNext(); ) {
+                Zombie zombie = zb.next();
+                if(zombie.overlaps(shoot)){
+                    it.remove();
+                    zombie.setHealth(zombie.getHealth() - shoot.getDamage());
+                    if (zombie.getHealth() <= 0) {
+                        zb.remove();
+                    }
+                }
+            }
+        }    
+    }
 
     @Override
     public void render(float delta) {
@@ -165,7 +225,10 @@ public class GameScreen implements Screen {
                 for (Soldier soldier : soldiers){
                     batch.draw(soldier.getImagem(), soldier.x, soldier.y);
                 }
-        font.draw(batch, String.valueOf(count_raindrops), 10, 470);
+                for (Rectangle munition : munitions){
+                    batch.draw(munitionImage, munition.x, munition.y);
+                }
+        font.draw(batch, String.valueOf(currency), 10, 470);
         batch.end();
         
 //        sR.begin(ShapeType.Filled);
@@ -189,7 +252,15 @@ public class GameScreen implements Screen {
             	//ATENÇAOOOOOOOOOOO EM CIMA
                 
                 if (Gdx.input.isButtonPressed(Input.Buttons.LEFT)){
-                
+                    Vector3 touchPos = new Vector3();
+                    touchPos.set(Gdx.input.getX(), Gdx.input.getY(), 0);
+                    for(Iterator<Rectangle> mu = munitions.iterator(); mu.hasNext();){
+                        Rectangle ammo = mu.next();
+                        if(ammo.contains(touchPos.x, touchPos.y)){
+                            mu.remove();
+                            currency += 50;
+                        }
+                    }
                 }
                 
                 if (Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)) {
@@ -197,12 +268,16 @@ public class GameScreen implements Screen {
                     touchPos.set(Gdx.input.getX(), Gdx.input.getY(), 0);
                     camera.unproject(touchPos);
                     int temp = random(0, 2);
-                    if(temp == 1){
-                        spawnAtirador(touchPos);
-                    }else if(temp == 2){
-                        spawnSniper(touchPos);
-                    }else{
-                        spawnSupport(touchPos);
+                    switch (temp) {
+                        case 1:
+                            spawnAtirador(touchPos);
+                            break;
+                        case 2:
+                            spawnSniper(touchPos);
+                            break;
+                        default:
+                            spawnSupport(touchPos);
+                            break;
                     }
                 }
 
@@ -215,56 +290,18 @@ public class GameScreen implements Screen {
                     if (TimeUtils.nanoTime() - soldier.getLastShotTime() > soldier.getReloadTime()) {
                         if(soldier.getClass().getSimpleName().equals("Sniper") || soldier.getClass().getSimpleName().equals("Atirador")){
                             spawnShoot(soldier);
-                        }   
+                        }
+                        if(soldier.getClass().getSimpleName().equals("Support")){
+                            spawnMunition(soldier);
+                        }
                     }
                     font.draw(batch, Integer.toString(soldier.getHealth()), soldier.x + 20, soldier.y + soldier.getHeight() + 15);
                 }
                 
-                for (Iterator<Zombie> zb = zombies.iterator(); zb.hasNext(); ) {
-                    Zombie zombie = zb.next();
-                    zombie.x += -zombie.getSpeed() * Gdx.graphics.getDeltaTime();
-                    if (zombie.x < 0 - zombie.width){
-                        zb.remove();
-                    }
-                    for (Iterator<Soldier> it = soldiers.iterator(); it.hasNext(); ){
-                        Soldier soldier = it.next();
-                        
-                        if(zombie.overlaps(soldier)){
-                            zombie.x += zombie.getSpeed() * Gdx.graphics.getDeltaTime();
-                            
-                            if (TimeUtils.nanoTime() - zombie.getLastAttackTime() > zombie.getReloadTime()) {
-                                if(zombie.getFirstAttack() == true)
-                                    soldier.setHealth(soldier.getHealth() - zombie.getDamage());
-                                    zombie.setLastAttackTime(TimeUtils.nanoTime());  
-                                    if (soldier.getHealth() <= 0) {
-                                        it.remove();
-                                        zombie.setFirstAttack(false);
-                                    }
-                                zombie.setFirstAttack(true);
-                            }
-                        }
-                    }
-                    font.draw(batch, Integer.toString(zombie.getHealth()), zombie.x + 20, zombie.y + zombie.getHeight() + 15);
-                }
+                updateZombies();
                 batch.end();
                 //move raindrops created
-                for (Iterator<Shoot> it = shoots.iterator(); it.hasNext(); ) {
-                    Shoot shoot = it.next();
-                    shoot.x += shoot.getSpeed() * Gdx.graphics.getDeltaTime();
-                    //check if it is beyond the screen
-                    if (shoot.x > Gdx.graphics.getWidth())
-                        it.remove();
-                    for (Iterator<Zombie> zb = zombies.iterator(); zb.hasNext(); ) {
-                        Zombie zombie = zb.next();
-                        if(zombie.overlaps(shoot)){
-                            it.remove();
-                            zombie.setHealth(zombie.getHealth() - shoot.getDamage());
-                            if (zombie.getHealth() <= 0) {
-                                zb.remove();
-                            }
-                        }
-                    }
-                }
+                updateShoots();
                 break;
             case PAUSE:
             	batch.begin();
