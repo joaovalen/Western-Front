@@ -54,6 +54,7 @@ public class GameScreen implements Screen {
     private int currency;
     private Array<Rectangle> munitions;
     private Texture munitionImage;
+    private boolean clickedOnAmmo;
 
     public GameScreen(final WesternFront game) {
         this.game = game;
@@ -194,6 +195,20 @@ public class GameScreen implements Screen {
             }
         }    
     }
+    
+    void updateSoldier(){
+        for (Soldier soldier : soldiers) {
+            if (TimeUtils.nanoTime() - soldier.getLastShotTime() > soldier.getReloadTime()) {
+                if(soldier.getClass().getSimpleName().equals("Sniper") || soldier.getClass().getSimpleName().equals("Atirador")){
+                    spawnShoot(soldier);
+                }
+                else if(soldier.getClass().getSimpleName().equals("Support")){
+                    spawnMunition(soldier);
+                }
+            }
+            font.draw(batch, Integer.toString(soldier.getHealth()), soldier.x + 20, soldier.y + soldier.getHeight() + 15);
+        }    
+    }
 
     @Override
     public void render(float delta) {
@@ -206,10 +221,7 @@ public class GameScreen implements Screen {
 
 		Gdx.gl.glClearColor(0, 0, 0.2f, 1);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-        // tell the camera to update its matrices.
         camera.update();
-        // tell the SpriteBatch to render in the
-        // coordinate system specified by the camera.
         game.batch.setProjectionMatrix(camera.combined);
         batch.setProjectionMatrix(camera.combined);
         sR.setProjectionMatrix(camera.combined);
@@ -250,64 +262,59 @@ public class GameScreen implements Screen {
                 // VAI JOGAR IFS DE INPUT AQUIIIIIIIIIIIIIIIIIIIII AAAAAAAAAAAAAA
                 
             	//ATENÇAOOOOOOOOOOO EM CIMA
-                
-                if (Gdx.input.isButtonPressed(Input.Buttons.LEFT)){
+                if (Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)){
+                    clickedOnAmmo = true;
                     Vector3 touchPos = new Vector3();
-                    touchPos.set(Gdx.input.getX(), Gdx.input.getY(), 0);
+                    camera.unproject(touchPos.set(Gdx.input.getX(), Gdx.input.getY(), 0));
                     for(Iterator<Rectangle> mu = munitions.iterator(); mu.hasNext();){
-                        Rectangle ammo = mu.next();
-                        if(ammo.contains(touchPos.x, touchPos.y)){
+                        Rectangle ammoAJENI = mu.next();
+//                        System.out.println(ammoAJENI.x);
+//                        System.out.println(ammoAJENI.y);
+                        if(touchPos.x > ammoAJENI.x && touchPos.x < ammoAJENI.x + ammoAJENI.getWidth() && touchPos.y > ammoAJENI.y && touchPos.y < ammoAJENI.y + ammoAJENI.getHeight()){
+                            System.out.println("eaeeaeaeaeeaeaeae meu bom");
                             mu.remove();
                             currency += 50;
+                            clickedOnAmmo = false;
                         }
                     }
                 }
-                
-                if (Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)) {
+                    
+                if (Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)){ 
                     Vector3 touchPos = new Vector3();
                     touchPos.set(Gdx.input.getX(), Gdx.input.getY(), 0);
-                    camera.unproject(touchPos);
+                    camera.unproject(touchPos.set(Gdx.input.getX(), Gdx.input.getY(), 0));
                     int temp = random(0, 2);
-                    switch (temp) {
-                        case 1:
-                            spawnAtirador(touchPos);
-                            break;
-                        case 2:
-                            spawnSniper(touchPos);
-                            break;
-                        default:
-                            spawnSupport(touchPos);
-                            break;
-                    }
+                        
+                        switch (temp) {
+                            case 1:
+                                spawnAtirador(touchPos);
+                                break;
+                            case 2:
+                                spawnSniper(touchPos);
+                                break;
+                            default:
+                                spawnSupport(touchPos);
+                                break;
+                        }
+                    
                 }
-
+                
                 if (TimeUtils.nanoTime() - lastZombieTime > 1000000000){    
                     spawnZombie();
                 }
-                batch.setProjectionMatrix(camera.combined);
-                batch.begin();
-                for (Soldier soldier : soldiers) {
-                    if (TimeUtils.nanoTime() - soldier.getLastShotTime() > soldier.getReloadTime()) {
-                        if(soldier.getClass().getSimpleName().equals("Sniper") || soldier.getClass().getSimpleName().equals("Atirador")){
-                            spawnShoot(soldier);
-                        }
-                        if(soldier.getClass().getSimpleName().equals("Support")){
-                            spawnMunition(soldier);
-                        }
-                    }
-                    font.draw(batch, Integer.toString(soldier.getHealth()), soldier.x + 20, soldier.y + soldier.getHeight() + 15);
-                }
                 
+                batch.begin();
+                updateSoldier();
                 updateZombies();
-                batch.end();
-                //move raindrops created
                 updateShoots();
+                batch.end();
                 break;
+                
             case PAUSE:
             	batch.begin();
-				font.draw(batch, "PAUSED", 380, 250);
+		font.draw(batch, "PAUSED", 380, 250);
                 batch.end();
-				break;
+		break;
         }
 
 
