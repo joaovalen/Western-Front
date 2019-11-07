@@ -11,8 +11,21 @@ import com.badlogic.gdx.graphics.Texture;
 
 public class Support extends Soldier{
     
+    private boolean hasMunition;
+
+    public boolean getHasMunition() {
+        return hasMunition;
+    }
+
+    public void setHasMunition(boolean hasMunition) {
+        this.hasMunition = hasMunition;
+    }
+    
+    
     public Support() {
         super(64, 92, 300, 4000000000L, new Texture(Gdx.files.internal("support-removebg-preview (1).png")), 1000, 500, new Texture(Gdx.files.internal("munition.png")));
+        hasMunition = false;
     }
+    
     
 }

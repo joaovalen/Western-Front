@@ -23,6 +23,7 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.TimeUtils;
 
 import java.util.Iterator;
+import sprites.Munition;
 import sprites.Support;
 
 public class GameScreen implements Screen {
@@ -52,9 +53,10 @@ public class GameScreen implements Screen {
     private ShapeRenderer sR;
     private Actor actor;
     private int currency;
-    private Array<Rectangle> munitions;
+    private Array<Munition> munitions;
     private Texture munitionImage;
     private boolean clickedOnAmmo;
+    private String teclaAtual;
 
     public GameScreen(final WesternFront game) {
         this.game = game;
@@ -96,6 +98,7 @@ public class GameScreen implements Screen {
         count_zombies = 0;
         currency = 0;
         soldiers = new Array<>();
+        teclaAtual = null;
 
     }
 
@@ -140,10 +143,10 @@ public class GameScreen implements Screen {
         
     }
     
-    private void spawnMunition(Soldier soldier){
-        Rectangle munition = new Rectangle();
-        munition.x = soldier.x + 12;
-        munition.y = soldier.y + soldier.height - 10;
+    private void spawnMunition(Support soldier){
+        Munition munition = new Munition(soldier);
+        soldier.setHasMunition(true);
+        soldier.setLastShotTime(TimeUtils.nanoTime());
         munitions.add(munition);
     }
     
@@ -202,8 +205,13 @@ public class GameScreen implements Screen {
                 if(soldier.getClass().getSimpleName().equals("Sniper") || soldier.getClass().getSimpleName().equals("Atirador")){
                     spawnShoot(soldier);
                 }
-                else if(soldier.getClass().getSimpleName().equals("Support")){
-                    spawnMunition(soldier);
+            } 
+            if (TimeUtils.nanoTime() - soldier.getLastShotTime() > soldier.getReloadTime()) { 
+                if(soldier.getClass().getSimpleName().equals("Support")){
+                    Support supp = (Support) soldier;
+                    if(supp.getHasMunition() == false){
+                        spawnMunition(supp);
+                    }
                 }
             }
             font.draw(batch, Integer.toString(soldier.getHealth()), soldier.x + 20, soldier.y + soldier.getHeight() + 15);
@@ -261,42 +269,54 @@ public class GameScreen implements Screen {
             case RUN:
                 // VAI JOGAR IFS DE INPUT AQUIIIIIIIIIIIIIIIIIIIII AAAAAAAAAAAAAA
                 
-            	//ATENÇAOOOOOOOOOOO EM CIMA
+            	if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_1))
+                    teclaAtual = "1";
+                if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_2))
+                    teclaAtual = "2";
+                if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_3))
+                    teclaAtual = "3";
+                if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_4))
+                    teclaAtual = "4";
+                if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_5))
+                    teclaAtual = "5";
+                
                 if (Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)){
                     clickedOnAmmo = true;
                     Vector3 touchPos = new Vector3();
                     camera.unproject(touchPos.set(Gdx.input.getX(), Gdx.input.getY(), 0));
-                    for(Iterator<Rectangle> mu = munitions.iterator(); mu.hasNext();){
-                        Rectangle ammoAJENI = mu.next();
+                    for(Iterator<Munition> mu = munitions.iterator(); mu.hasNext();){
+                        Munition ammo = mu.next();
 //                        System.out.println(ammoAJENI.x);
 //                        System.out.println(ammoAJENI.y);
-                        if(touchPos.x > ammoAJENI.x && touchPos.x < ammoAJENI.x + ammoAJENI.getWidth() && touchPos.y > ammoAJENI.y && touchPos.y < ammoAJENI.y + ammoAJENI.getHeight()){
-                            System.out.println("eaeeaeaeaeeaeaeae meu bom");
+                        if(touchPos.x > ammo.x && touchPos.x < ammo.x + ammo.getWidth() && touchPos.y > ammo.y && touchPos.y < ammo.y + ammo.getHeight()){
                             mu.remove();
+                            ammo.getSupport().setHasMunition(false);
                             currency += 50;
                             clickedOnAmmo = false;
                         }
                     }
                 }
                     
-                if (Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)){ 
-                    Vector3 touchPos = new Vector3();
-                    touchPos.set(Gdx.input.getX(), Gdx.input.getY(), 0);
-                    camera.unproject(touchPos.set(Gdx.input.getX(), Gdx.input.getY(), 0));
-                    int temp = random(0, 2);
-                        
-                        switch (temp) {
-                            case 1:
-                                spawnAtirador(touchPos);
-                                break;
-                            case 2:
-                                spawnSniper(touchPos);
-                                break;
-                            default:
-                                spawnSupport(touchPos);
-                                break;
-                        }
-                    
+                if(clickedOnAmmo){    
+                    if (Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)){ 
+                        Vector3 touchPos = new Vector3();
+                        touchPos.set(Gdx.input.getX(), Gdx.input.getY(), 0);
+                        camera.unproject(touchPos.set(Gdx.input.getX(), Gdx.input.getY(), 0));
+                        int temp = random(0, 2);
+
+                            switch (temp) {
+                                case 1:
+                                    spawnAtirador(touchPos);
+                                    break;
+                                case 2:
+                                    spawnSniper(touchPos);
+                                    break;
+                                default:
+                                    spawnSupport(touchPos);
+                                    break;
+                            }
+
+                    }
                 }
                 
                 if (TimeUtils.nanoTime() - lastZombieTime > 1000000000){    
