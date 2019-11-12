@@ -1,5 +1,6 @@
 package scenes;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.Rectangle;
 import sprites.Soldier;
@@ -7,10 +8,8 @@ import sprites.Soldier;
 
 public class Barricade extends Soldier {
     
-    Texture imagem =
-    
     public Barricade() {
-        super(width, height, health, reloadTime, imagem, bulletSpeed, damage, imagemBala);
+        super(64, 81, 2000, 40000000000000L, new Texture(Gdx.files.internal("barricade.png")), 0, 0, null);
     }
     
     

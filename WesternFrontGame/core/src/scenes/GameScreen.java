@@ -57,6 +57,7 @@ public class GameScreen implements Screen {
     private Texture munitionImage;
     private boolean clickedOnAmmo;
     private String teclaAtual;
+    private Texture barricadeImage;
 
     public GameScreen(final WesternFront game) {
         this.game = game;
@@ -66,7 +67,7 @@ public class GameScreen implements Screen {
         shootImage = new Texture(Gdx.files.internal("bullet.png"));
         zombieImage = new Texture(Gdx.files.internal("zombie.png"));
         soldierImage = new Texture(Gdx.files.internal("soldier.png"));
-        background = new Texture(Gdx.files.internal("mapa.png"));
+        background = new Texture(Gdx.files.internal("mapapronto.png"));
         munitionImage = new Texture(Gdx.files.internal("munition.png"));
 
         // Loading Music and Effects 
@@ -98,7 +99,7 @@ public class GameScreen implements Screen {
         count_zombies = 0;
         currency = 0;
         soldiers = new Array<>();
-        teclaAtual = null;
+        teclaAtual = "";
 
     }
 
@@ -150,6 +151,21 @@ public class GameScreen implements Screen {
         munitions.add(munition);
     }
     
+    private void spawnBarricade(Vector3 pos){
+        Barricade soldier = new Barricade();
+        soldier.x = pos.x - soldier.width/2;
+        soldier.y = pos.y - soldier.height/2;
+        soldiers.add(soldier);
+    }
+    
+    private void spawnLandMine(Vector3 pos){
+        LandMine soldier = new LandMine();
+        soldier.setArmTime(TimeUtils.nanoTime());
+        soldier.x = pos.x - soldier.width/2;
+        soldier.y = pos.y - soldier.height/2;
+        soldiers.add(soldier);        
+    }
+    
     private void updateZombies(){
         for (Iterator<Zombie> zb = zombies.iterator(); zb.hasNext(); ) {
             Zombie zombie = zb.next();
@@ -162,8 +178,14 @@ public class GameScreen implements Screen {
 
                 if(zombie.overlaps(soldier)){
                     zombie.x += zombie.getSpeed() * Gdx.graphics.getDeltaTime();
-
-                    if (TimeUtils.nanoTime() - zombie.getLastAttackTime() > zombie.getReloadTime()) {
+                    
+                    if(soldier.getClass().getSimpleName().equals("LandMine")){
+                        LandMine land = (LandMine) soldier;
+                        if (land.isActivated() == true) {
+                            zombie.setHealth(zombie.getHealth() - land.getDamage());
+                            it.remove();
+                        }
+                    }else if (TimeUtils.nanoTime() - zombie.getLastAttackTime() > zombie.getReloadTime()) {
                         if(zombie.getFirstAttack() == true)
                             soldier.setHealth(soldier.getHealth() - zombie.getDamage());
                             zombie.setLastAttackTime(TimeUtils.nanoTime());  
@@ -201,20 +223,32 @@ public class GameScreen implements Screen {
     
     void updateSoldier(){
         for (Soldier soldier : soldiers) {
-            if (TimeUtils.nanoTime() - soldier.getLastShotTime() > soldier.getReloadTime()) {
-                if(soldier.getClass().getSimpleName().equals("Sniper") || soldier.getClass().getSimpleName().equals("Atirador")){
+            
+            if(soldier.getClass().getSimpleName().equals("Sniper") || soldier.getClass().getSimpleName().equals("Atirador")){
+                if (TimeUtils.nanoTime() - soldier.getLastShotTime() > soldier.getReloadTime()) {
                     spawnShoot(soldier);
                 }
             } 
-            if (TimeUtils.nanoTime() - soldier.getLastShotTime() > soldier.getReloadTime()) { 
-                if(soldier.getClass().getSimpleName().equals("Support")){
+            
+            if(soldier.getClass().getSimpleName().equals("Support")){
+                if (TimeUtils.nanoTime() - soldier.getLastShotTime() > soldier.getReloadTime()) { 
                     Support supp = (Support) soldier;
                     if(supp.getHasMunition() == false){
                         spawnMunition(supp);
                     }
                 }
             }
-            font.draw(batch, Integer.toString(soldier.getHealth()), soldier.x + 20, soldier.y + soldier.getHeight() + 15);
+            
+            if(soldier.getClass().getSimpleName().equals("LandMine")){
+                LandMine land = (LandMine) soldier;
+                if (TimeUtils.nanoTime() - land.getArmTime() > land.getReloadTime() && land.isActivated() == false) {
+                    land.setActivated(true);
+                }
+                font.draw(batch, Boolean.toString(land.isActivated()), soldier.x + 20, soldier.y + soldier.getHeight() + 15);
+            }
+            if (!soldier.getClass().getSimpleName().equals("LandMine")) {
+                font.draw(batch, Integer.toString(soldier.getHealth()), soldier.x + 20, soldier.y + soldier.getHeight() + 15);
+            }
         }    
     }
 
@@ -245,7 +279,7 @@ public class GameScreen implements Screen {
                 for (Soldier soldier : soldiers){
                     batch.draw(soldier.getImagem(), soldier.x, soldier.y);
                 }
-                for (Rectangle munition : munitions){
+                for (Munition munition : munitions){
                     batch.draw(munitionImage, munition.x, munition.y);
                 }
         font.draw(batch, String.valueOf(currency), 10, 470);
@@ -314,11 +348,13 @@ public class GameScreen implements Screen {
                                     spawnSupport(touchPos);
                                     break;
                                 case "4":
-                                    System.out.println("calma");
+                                    spawnBarricade(touchPos);
                                     break;
-                                default:
-                                    System.out.println("calma2");
+                                case "5":
+                                    spawnLandMine(touchPos);
                                     break;
+                                case "":
+                                    System.out.println("aperta uma tecla ô mongol ");
                             }
 
                     }
