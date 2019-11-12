@@ -302,17 +302,22 @@ public class GameScreen implements Screen {
                         Vector3 touchPos = new Vector3();
                         touchPos.set(Gdx.input.getX(), Gdx.input.getY(), 0);
                         camera.unproject(touchPos.set(Gdx.input.getX(), Gdx.input.getY(), 0));
-                        int temp = random(0, 2);
 
-                            switch (temp) {
-                                case 1:
+                            switch (teclaAtual) {
+                                case "1":
                                     spawnAtirador(touchPos);
                                     break;
-                                case 2:
+                                case "2":
                                     spawnSniper(touchPos);
                                     break;
-                                default:
+                                case "3":
                                     spawnSupport(touchPos);
+                                    break;
+                                case "4":
+                                    System.out.println("calma");
+                                    break;
+                                default:
+                                    System.out.println("calma2");
                                     break;
                             }
 
