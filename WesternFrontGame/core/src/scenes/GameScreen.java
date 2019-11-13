@@ -1,5 +1,7 @@
 package scenes;
 
+import sprites.Barricade;
+import sprites.LandMine;
 import sprites.Atirador;
 import sprites.Shoot;
 import sprites.Sniper;
@@ -177,15 +179,15 @@ public class GameScreen implements Screen {
                 Soldier soldier = it.next();
 
                 if(zombie.overlaps(soldier)){
-                    zombie.x += zombie.getSpeed() * Gdx.graphics.getDeltaTime();
-                    
                     if(soldier.getClass().getSimpleName().equals("LandMine")){
                         LandMine land = (LandMine) soldier;
                         if (land.isActivated() == true) {
                             zombie.setHealth(zombie.getHealth() - land.getDamage());
                             it.remove();
                         }
+                        zombie.x += zombie.getSpeed() * Gdx.graphics.getDeltaTime();
                     }else if (TimeUtils.nanoTime() - zombie.getLastAttackTime() > zombie.getReloadTime()) {
+                        zombie.x += zombie.getSpeed() * Gdx.graphics.getDeltaTime();
                         if(zombie.getFirstAttack() == true)
                             soldier.setHealth(soldier.getHealth() - zombie.getDamage());
                             zombie.setLastAttackTime(TimeUtils.nanoTime());  

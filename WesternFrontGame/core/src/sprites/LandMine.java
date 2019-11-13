@@ -1,4 +1,4 @@
-package scenes;
+package sprites;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
@@ -27,7 +27,7 @@ public class LandMine extends Soldier {
     }
     
     public LandMine() {
-        super(40, 17, 500, 140000000000L, new Texture(Gdx.files.internal("landmine.png")), 0, 0, null);
+        super(40, 17, 500, 1000000000, new Texture(Gdx.files.internal("landmineOff.png")), 0, 0, null);
         activated = false;
     }
     

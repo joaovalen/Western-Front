@@ -23,7 +23,7 @@ public class Support extends Soldier{
     
     
     public Support() {
-        super(64, 92, 300, 4000000000L, new Texture(Gdx.files.internal("support-removebg-preview (1).png")), 1000, 500, new Texture(Gdx.files.internal("munition.png")));
+        super(64, 92, 300, 4000000000L, new Texture(Gdx.files.internal("suporte.png")), 1000, 500, new Texture(Gdx.files.internal("munition.png")));
         hasMunition = false;
     }
     
