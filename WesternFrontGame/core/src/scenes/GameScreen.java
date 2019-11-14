@@ -25,7 +25,9 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.TimeUtils;
 
 import java.util.Iterator;
+import java.util.concurrent.CopyOnWriteArrayList;
 import sprites.Munition;
+import sprites.Square;
 import sprites.Support;
 
 public class GameScreen implements Screen {
@@ -40,9 +42,9 @@ public class GameScreen implements Screen {
     private OrthographicCamera camera;
     private SpriteBatch batch;
     // Objects
-    private Array<Shoot> shoots;
+    private CopyOnWriteArrayList<Shoot> shoots;
     private long lastDropTime;
-    private Array<Zombie> zombies;
+    private CopyOnWriteArrayList<Zombie> zombies;
     private long lastZombieTime;
     private State state;
     private BitmapFont font;
@@ -50,17 +52,18 @@ public class GameScreen implements Screen {
     private int count_zombies;
     private final int SCREEN_WIDTH = Gdx.graphics.getWidth();
     private final int SCREEN_HEIGHT = Gdx.graphics.getHeight();
-    private Array<Soldier> soldiers;
+    private CopyOnWriteArrayList<Soldier> soldiers;
     private int count_soldier;
     private ShapeRenderer sR;
     private Actor actor;
     private int currency;
-    private Array<Munition> munitions;
+    private CopyOnWriteArrayList<Munition> munitions;
     private Texture munitionImage;
     private boolean clickedOnAmmo;
     private String teclaAtual;
     private Texture barricadeImage;
-
+    private CopyOnWriteArrayList<Square> squares;
+    
     public GameScreen(final WesternFront game) {
         this.game = game;
 	//set initial state
@@ -94,14 +97,22 @@ public class GameScreen implements Screen {
 //        bucket.width = 64;
 //        bucket.height = 64;
         font = new BitmapFont();
-        shoots = new Array<>();
+        shoots = new CopyOnWriteArrayList<>();
         count_raindrops = 0;
-        zombies = new Array<>();
-        munitions = new Array<>();
+        zombies = new CopyOnWriteArrayList<>();
+        munitions = new CopyOnWriteArrayList<>();
         count_zombies = 0;
         currency = 0;
-        soldiers = new Array<>();
+        soldiers = new CopyOnWriteArrayList<>();
         teclaAtual = "";
+        for (int i = 0; i < 5; i++) {
+            Square quadvert = new Square(390, 307);
+            quadvert.x += 105 * i;
+            for (int j = 0; j < 9; j++) {
+                Square quadhori = new Square(390,307);
+                quadhori.y += 105 * i;
+            }
+        }
 
     }
 
@@ -169,30 +180,37 @@ public class GameScreen implements Screen {
     }
     
     private void updateZombies(){
+        int numberzombie = -1;
         for (Iterator<Zombie> zb = zombies.iterator(); zb.hasNext(); ) {
             Zombie zombie = zb.next();
+            numberzombie ++;
             zombie.x += -zombie.getSpeed() * Gdx.graphics.getDeltaTime();
             if (zombie.x < 0 - zombie.width){
-                zb.remove();
+                zombies.remove(numberzombie);
             }
+            int numbersoldier = -1;
             for (Iterator<Soldier> it = soldiers.iterator(); it.hasNext(); ){
                 Soldier soldier = it.next();
-
+                numbersoldier ++;
                 if(zombie.overlaps(soldier)){
+                    zombie.x += zombie.getSpeed() * Gdx.graphics.getDeltaTime();
                     if(soldier.getClass().getSimpleName().equals("LandMine")){
+                        System.out.println("aaaaaaaa");
                         LandMine land = (LandMine) soldier;
                         if (land.isActivated() == true) {
                             zombie.setHealth(zombie.getHealth() - land.getDamage());
-                            it.remove();
-                        }
-                        zombie.x += zombie.getSpeed() * Gdx.graphics.getDeltaTime();
-                    }else if (TimeUtils.nanoTime() - zombie.getLastAttackTime() > zombie.getReloadTime()) {
-                        zombie.x += zombie.getSpeed() * Gdx.graphics.getDeltaTime();
+                            soldiers.remove(numbersoldier);
+                            if (zombie.getHealth() <= 0) {
+                                zombies.remove(numberzombie);
+                            }
+                        }    
+                    }
+                    if (TimeUtils.nanoTime() - zombie.getLastAttackTime() > zombie.getReloadTime()) {
                         if(zombie.getFirstAttack() == true)
                             soldier.setHealth(soldier.getHealth() - zombie.getDamage());
                             zombie.setLastAttackTime(TimeUtils.nanoTime());  
                             if (soldier.getHealth() <= 0) {
-                                it.remove();
+                                soldiers.remove(numbersoldier);
                                 zombie.setFirstAttack(false);
                             }
                         zombie.setFirstAttack(true);
@@ -204,19 +222,22 @@ public class GameScreen implements Screen {
     }
     
     private void updateShoots(){
+        int numbershoot = -1;
         for (Iterator<Shoot> it = shoots.iterator(); it.hasNext(); ) {
             Shoot shoot = it.next();
+            numbershoot ++;
             shoot.x += shoot.getSpeed() * Gdx.graphics.getDeltaTime();
-            //check if it is beyond the screen
-            if (shoot.x > Gdx.graphics.getWidth())
-                it.remove();
+            if (shoot.x > Gdx.graphics.getWidth() + 10)
+                shoots.remove(numbershoot);
+            int numberzombie = -1;
             for (Iterator<Zombie> zb = zombies.iterator(); zb.hasNext(); ) {
                 Zombie zombie = zb.next();
+                numberzombie ++;
                 if(zombie.overlaps(shoot)){
-                    it.remove();
+                    shoots.remove(numbershoot);
                     zombie.setHealth(zombie.getHealth() - shoot.getDamage());
                     if (zombie.getHealth() <= 0) {
-                        zb.remove();
+                        zombies.remove(numberzombie);
                     }
                 }
             }
@@ -245,8 +266,8 @@ public class GameScreen implements Screen {
                 LandMine land = (LandMine) soldier;
                 if (TimeUtils.nanoTime() - land.getArmTime() > land.getReloadTime() && land.isActivated() == false) {
                     land.setActivated(true);
+                    land.setImagem(new Texture(Gdx.files.internal("landmineOn.png")));
                 }
-                font.draw(batch, Boolean.toString(land.isActivated()), soldier.x + 20, soldier.y + soldier.getHeight() + 15);
             }
             if (!soldier.getClass().getSimpleName().equals("LandMine")) {
                 font.draw(batch, Integer.toString(soldier.getHealth()), soldier.x + 20, soldier.y + soldier.getHeight() + 15);
@@ -325,7 +346,7 @@ public class GameScreen implements Screen {
 //                        System.out.println(ammoAJENI.x);
 //                        System.out.println(ammoAJENI.y);
                         if(touchPos.x > ammo.x && touchPos.x < ammo.x + ammo.getWidth() && touchPos.y > ammo.y && touchPos.y < ammo.y + ammo.getHeight()){
-                            mu.remove();
+                            munitions.remove(mu);
                             ammo.getSupport().setHasMunition(false);
                             currency += 50;
                             clickedOnAmmo = false;
@@ -334,7 +355,7 @@ public class GameScreen implements Screen {
                 }
                     
                 if(clickedOnAmmo){    
-                    if (Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)){ 
+                    if (Gdx.input.isButtonPressed(Input.Buttons.LEFT)){ 
                         Vector3 touchPos = new Vector3();
                         touchPos.set(Gdx.input.getX(), Gdx.input.getY(), 0);
                         camera.unproject(touchPos.set(Gdx.input.getX(), Gdx.input.getY(), 0));
