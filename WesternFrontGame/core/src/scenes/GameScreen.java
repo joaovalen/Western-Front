@@ -10,12 +10,14 @@ import sprites.Zombie;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.math.MathUtils;
 import static com.badlogic.gdx.math.MathUtils.random;
 import com.badlogic.gdx.math.Rectangle;
@@ -43,15 +45,12 @@ public class GameScreen implements Screen {
     private SpriteBatch batch;
     // Objects
     private CopyOnWriteArrayList<Shoot> shoots;
-    private long lastDropTime;
     private CopyOnWriteArrayList<Zombie> zombies;
     private long lastZombieTime;
     private State state;
     private BitmapFont font;
     private int count_raindrops;
     private int count_zombies;
-    private final int SCREEN_WIDTH = Gdx.graphics.getWidth();
-    private final int SCREEN_HEIGHT = Gdx.graphics.getHeight();
     private CopyOnWriteArrayList<Soldier> soldiers;
     private int count_soldier;
     private ShapeRenderer sR;
@@ -89,72 +88,104 @@ public class GameScreen implements Screen {
         camera.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         batch = new SpriteBatch();
         sR = new ShapeRenderer();
-
-        //creating the bucket
-//        bucket = new Rectangle();
-//        bucket.x = 800 / 2 - 64 / 2;
-//        bucket.y = 20;
-//        bucket.width = 64;
-//        bucket.height = 64;
         font = new BitmapFont();
+        currency = 75; 
+        teclaAtual = "";
         shoots = new CopyOnWriteArrayList<>();
-        count_raindrops = 0;
         zombies = new CopyOnWriteArrayList<>();
         munitions = new CopyOnWriteArrayList<>();
-        count_zombies = 0;
-        currency = 0;
         soldiers = new CopyOnWriteArrayList<>();
-        teclaAtual = "";
+        squares = new CopyOnWriteArrayList<>();
         for (int i = 0; i < 5; i++) {
-            Square quadvert = new Square(390, 307);
-            quadvert.x += 105 * i;
+            int y = 56 * i;
             for (int j = 0; j < 9; j++) {
-                Square quadhori = new Square(390,307);
-                quadhori.y += 105 * i;
+                int x = 59 * j;
+                Square quad = new Square(225, 313);
+                quad.x += x;
+                quad.y -= y;
+                quad.width = 56;
+                quad.height = 49;
+                squares.add(quad);
             }
         }
-
     }
 
-    private void spawnAtirador(Vector3 pos) {
-        Atirador soldier = new Atirador();
-        soldier.x = pos.x - soldier.width/2;
-        soldier.y = pos.y - soldier.height/2;
-        soldiers.add(soldier);
+    private void pintartemp(){
+        if(false){
+            sR.begin(ShapeType.Filled);
+            sR.setColor(Color.BLUE);
+            for (Shoot shoot : shoots) {
+                sR.rect(shoot.x, shoot.y, shoot.width, shoot.height);
+            }
+            for (Zombie zombie : zombies) {
+                sR.rect(zombie.x, zombie.y, zombie.width, zombie.height);
+
+            }
+            for (Soldier soldier : soldiers){
+                sR.rect(soldier.x, soldier.y, soldier.width, soldier.height);
+            }        
+            for (Square squa : squares) {
+                sR.rect(squa.x, squa.y, squa.width, squa.height);
+            }
+            sR.end();
+        }
     }
     
-    private void spawnSniper(Vector3 pos) {
+    private void spawnAtirador(float x, float y, Square square) {
+        Atirador soldier = new Atirador();
+        if (currency >= soldier.getCost()) {
+            soldier.x = x;
+            soldier.y = y;
+            soldier.setSquare(square);
+            soldiers.add(soldier);
+            square.setOccupied(true);
+            currency -= soldier.getCost();
+        }
+    }
+    
+    private void spawnSniper(float x, float y, Square square) {
         Sniper soldier = new Sniper();
-        soldier.x = pos.x - soldier.width/2;
-        soldier.y = pos.y - soldier.height/2;
-        soldiers.add(soldier);
+        if (currency >= soldier.getCost()) {
+            soldier.x = x;
+            soldier.y = y;
+            soldier.setSquare(square);
+            soldiers.add(soldier);
+            square.setOccupied(true);
+            currency -= soldier.getCost();
+        }
     }
     
     private void spawnZombie() {
+        int temp = random(0,44);
+        float posSpawn = squares.get(temp).getY();
         Zombie zombie = new Zombie();
         zombie.x = Gdx.graphics.getWidth();
-        zombie.y = MathUtils.random(0, Gdx.graphics.getHeight() - 97);
+        zombie.y = posSpawn;
         zombies.add(zombie);
         lastZombieTime = TimeUtils.nanoTime();
     }
     
     private void spawnShoot(Soldier soldier) {
         Shoot shoot = new Shoot();
-        shoot.x = soldier.x + soldier.width/2;
-        shoot.y = soldier.y + soldier.height/2 - 9;
+        shoot.x = soldier.x;
+        shoot.y = soldier.y;
         shoot.setDamage(soldier.getDamage());
         shoot.setSpeed(soldier.getBulletSpeed());
-        shoot.setImagem(soldier.getImagemBala(  ));
+        shoot.setImagem(soldier.getImagemBala());
         shoots.add(shoot);
         soldier.setLastShotTime(TimeUtils.nanoTime());
     }
     
-    private void spawnSupport(Vector3 pos){
+    private void spawnSupport(float x, float y, Square square){
         Support soldier = new Support();
-        soldier.x = pos.x - soldier.width/2;
-        soldier.y = pos.y - soldier.height/2;
-        soldiers.add(soldier);
-        
+        if (currency >= soldier.getCost()) {
+            soldier.x = x;
+            soldier.y = y;
+            soldier.setSquare(square);
+            soldiers.add(soldier);
+            square.setOccupied(true);
+            currency -= soldier.getCost();
+        }
     }
     
     private void spawnMunition(Support soldier){
@@ -164,89 +195,89 @@ public class GameScreen implements Screen {
         munitions.add(munition);
     }
     
-    private void spawnBarricade(Vector3 pos){
+    private void spawnBarricade(float x, float y, Square square){
         Barricade soldier = new Barricade();
-        soldier.x = pos.x - soldier.width/2;
-        soldier.y = pos.y - soldier.height/2;
-        soldiers.add(soldier);
+        if (currency >= soldier.getCost()) {
+            soldier.x = x;
+            soldier.y = y;
+            soldier.setSquare(square);
+            soldiers.add(soldier);
+            square.setOccupied(true);
+            currency -= soldier.getCost();
+        }
     }
     
-    private void spawnLandMine(Vector3 pos){
+    private void spawnLandMine(float x, float y, Square square){
         LandMine soldier = new LandMine();
-        soldier.setArmTime(TimeUtils.nanoTime());
-        soldier.x = pos.x - soldier.width/2;
-        soldier.y = pos.y - soldier.height/2;
-        soldiers.add(soldier);        
+        if (currency >= soldier.getCost()) {
+            soldier.setArmTime(TimeUtils.nanoTime());
+            soldier.x = x;
+            soldier.y = y;
+            soldier.setSquare(square);
+            soldiers.add(soldier);
+            square.setOccupied(true);
+            currency -= soldier.getCost();
+        }      
     }
     
     private void updateZombies(){
-        int numberzombie = -1;
-        for (Iterator<Zombie> zb = zombies.iterator(); zb.hasNext(); ) {
+        for (Iterator<Zombie> zb = zombies.iterator(); zb.hasNext();) {
             Zombie zombie = zb.next();
-            numberzombie ++;
             zombie.x += -zombie.getSpeed() * Gdx.graphics.getDeltaTime();
             if (zombie.x < 0 - zombie.width){
-                zombies.remove(numberzombie);
+                zombies.remove(zombie);
             }
-            int numbersoldier = -1;
-            for (Iterator<Soldier> it = soldiers.iterator(); it.hasNext(); ){
+            for (Iterator<Soldier> it = soldiers.iterator(); it.hasNext();){
                 Soldier soldier = it.next();
-                numbersoldier ++;
                 if(zombie.overlaps(soldier)){
                     zombie.x += zombie.getSpeed() * Gdx.graphics.getDeltaTime();
                     if(soldier.getClass().getSimpleName().equals("LandMine")){
-                        System.out.println("aaaaaaaa");
                         LandMine land = (LandMine) soldier;
                         if (land.isActivated() == true) {
-                            zombie.setHealth(zombie.getHealth() - land.getDamage());
-                            soldiers.remove(numbersoldier);
-                            if (zombie.getHealth() <= 0) {
-                                zombies.remove(numberzombie);
-                            }
+                            zombie.setHealth(zombie.getHealth() - land.getDamage());  
+                            soldiers.remove(soldier);
+                            soldier.getSquare().setOccupied(false);
                         }    
                     }
                     if (TimeUtils.nanoTime() - zombie.getLastAttackTime() > zombie.getReloadTime()) {
                         if(zombie.getFirstAttack() == true)
                             soldier.setHealth(soldier.getHealth() - zombie.getDamage());
                             zombie.setLastAttackTime(TimeUtils.nanoTime());  
-                            if (soldier.getHealth() <= 0) {
-                                soldiers.remove(numbersoldier);
+                            if (soldier.getHealth() <= 0) { 
+                                soldiers.remove(soldier);
+                                soldier.getSquare().setOccupied(false);
                                 zombie.setFirstAttack(false);
                             }
                         zombie.setFirstAttack(true);
                     }
                 }
             }
+            if (zombie.getHealth() <= 0) {
+                zombies.remove(zombie);
+            }
             font.draw(batch, Integer.toString(zombie.getHealth()), zombie.x + 20, zombie.y + zombie.getHeight() + 15);
         }        
     }
     
     private void updateShoots(){
-        int numbershoot = -1;
-        for (Iterator<Shoot> it = shoots.iterator(); it.hasNext(); ) {
+        for (Iterator<Shoot> it = shoots.iterator(); it.hasNext();) {
             Shoot shoot = it.next();
-            numbershoot ++;
             shoot.x += shoot.getSpeed() * Gdx.graphics.getDeltaTime();
-            if (shoot.x > Gdx.graphics.getWidth() + 10)
-                shoots.remove(numbershoot);
-            int numberzombie = -1;
-            for (Iterator<Zombie> zb = zombies.iterator(); zb.hasNext(); ) {
+            for (Iterator<Zombie> zb = zombies.iterator(); zb.hasNext();) {
                 Zombie zombie = zb.next();
-                numberzombie ++;
                 if(zombie.overlaps(shoot)){
-                    shoots.remove(numbershoot);
                     zombie.setHealth(zombie.getHealth() - shoot.getDamage());
-                    if (zombie.getHealth() <= 0) {
-                        zombies.remove(numberzombie);
-                    }
+                    shoots.remove(shoot);
                 }
+            }
+            if (shoot.x >= Gdx.graphics.getWidth()){
+                shoots.remove(shoot);
             }
         }    
     }
     
-    void updateSoldier(){
+    private void updateSoldier(){
         for (Soldier soldier : soldiers) {
-            
             if(soldier.getClass().getSimpleName().equals("Sniper") || soldier.getClass().getSimpleName().equals("Atirador")){
                 if (TimeUtils.nanoTime() - soldier.getLastShotTime() > soldier.getReloadTime()) {
                     spawnShoot(soldier);
@@ -307,21 +338,9 @@ public class GameScreen implements Screen {
                 }
         font.draw(batch, String.valueOf(currency), 10, 470);
         batch.end();
-        
-//        sR.begin(ShapeType.Filled);
-//        sR.setColor(Color.BLUE);
-//        for (Shoot shoot : shoots) {
-//            sR.rect(shoot.x, shoot.y, shoot.width, shoot.height);
-//        }
-//        for (Zombie zombie : zombies) {
-//            sR.rect(zombie.x, zombie.y, zombie.width, zombie.height);
-//
-//        }
-//        for (Soldier soldier : soldiers){
-//            sR.rect(soldier.x, soldier.y, soldier.width, soldier.height);
-//        }        
-//        sR.end();
-        
+
+        pintartemp();
+
 	switch (state) {
             case RUN:
                 // VAI JOGAR IFS DE INPUT AQUIIIIIIIIIIIIIIIIIIIII AAAAAAAAAAAAAA
@@ -343,10 +362,8 @@ public class GameScreen implements Screen {
                     camera.unproject(touchPos.set(Gdx.input.getX(), Gdx.input.getY(), 0));
                     for(Iterator<Munition> mu = munitions.iterator(); mu.hasNext();){
                         Munition ammo = mu.next();
-//                        System.out.println(ammoAJENI.x);
-//                        System.out.println(ammoAJENI.y);
-                        if(touchPos.x > ammo.x && touchPos.x < ammo.x + ammo.getWidth() && touchPos.y > ammo.y && touchPos.y < ammo.y + ammo.getHeight()){
-                            munitions.remove(mu);
+                        if(ammo.contains(touchPos.x, touchPos.y)){
+                            munitions.remove(ammo);
                             ammo.getSupport().setHasMunition(false);
                             currency += 50;
                             clickedOnAmmo = false;
@@ -355,35 +372,41 @@ public class GameScreen implements Screen {
                 }
                     
                 if(clickedOnAmmo){    
-                    if (Gdx.input.isButtonPressed(Input.Buttons.LEFT)){ 
+                    if (Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)){ 
                         Vector3 touchPos = new Vector3();
                         touchPos.set(Gdx.input.getX(), Gdx.input.getY(), 0);
                         camera.unproject(touchPos.set(Gdx.input.getX(), Gdx.input.getY(), 0));
-
-                            switch (teclaAtual) {
-                                case "1":
-                                    spawnAtirador(touchPos);
-                                    break;
-                                case "2":
-                                    spawnSniper(touchPos);
-                                    break;
-                                case "3":
-                                    spawnSupport(touchPos);
-                                    break;
-                                case "4":
-                                    spawnBarricade(touchPos);
-                                    break;
-                                case "5":
-                                    spawnLandMine(touchPos);
-                                    break;
-                                case "":
-                                    System.out.println("aperta uma tecla ô mongol ");
+                    for(Square square : squares){
+                        if (square.contains(touchPos.x, touchPos.y)) {
+                            if (square.isOccupied() == false) {
+                                float posx = square.x;
+                                float posy = square.y + 15;
+                                switch (teclaAtual) {
+                                    case "1":
+                                        spawnAtirador(posx, posy, square);
+                                        break;
+                                    case "2":
+                                        spawnSniper(posx, posy, square);
+                                        break;
+                                    case "3":
+                                        spawnSupport(posx, posy, square);
+                                        break;
+                                    case "4":
+                                        spawnBarricade(posx, posy, square);
+                                        break;
+                                    case "5":
+                                        spawnLandMine(posx, posy, square);
+                                        break;
+                                    case "":
+                                        spawnAtirador(posx, posy, square);
+                                }
                             }
-
+                        }
+                    }    
                     }
                 }
                 
-                if (TimeUtils.nanoTime() - lastZombieTime > 1000000000){    
+                if (TimeUtils.nanoTime() - lastZombieTime > 100000000){    
                     spawnZombie();
                 }
                 

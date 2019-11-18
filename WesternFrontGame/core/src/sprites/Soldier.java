@@ -14,6 +14,26 @@ public class Soldier extends Rectangle {
     private long reloadTime;
     private int bulletSpeed;
     private int damage;
+    private Square square;
+    private int cost;
+
+    public int getCost() {
+        return cost;
+    }
+
+    public void setCost(int cost) {
+        this.cost = cost;
+    }
+    
+    
+
+    public Square getSquare() {
+        return square;
+    }
+
+    public void setSquare(Square square) {
+        this.square = square;
+    }
 
     public long getReloadTime() {
         return reloadTime;
@@ -39,7 +59,7 @@ public class Soldier extends Rectangle {
         this.health = health;
     }
 
-    public Soldier(int width, int height, int health, long reloadTime, Texture imagem, int bulletSpeed, int damage, Texture imagemBala) {
+    public Soldier(int width, int height, int health, long reloadTime, Texture imagem, int bulletSpeed, int damage, Texture imagemBala, int cost) {
         this.imagem = imagem;
         this.width = imagem.getWidth(); 
         this.height = imagem.getHeight();
@@ -49,6 +69,7 @@ public class Soldier extends Rectangle {
         this.bulletSpeed = bulletSpeed;
         this.damage = damage;
         this.imagemBala = imagemBala;
+        this.cost = cost;
     }
 
     public long getLastShotTime() {

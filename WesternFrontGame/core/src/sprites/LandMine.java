@@ -27,7 +27,7 @@ public class LandMine extends Soldier {
     }
     
     public LandMine() {
-        super(40, 17, 500, 1000000000, new Texture(Gdx.files.internal("landmineOff.png")), 0, 500, null);
+        super(40, 17, 300, 400000000L, new Texture(Gdx.files.internal("landmineOff.png")), 0, 500, null, 25);
         activated = false;
     }
     

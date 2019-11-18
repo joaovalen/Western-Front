@@ -9,7 +9,7 @@ import sprites.Soldier;
 public class Barricade extends Soldier {
     
     public Barricade() {
-        super(64, 81, 2000, 40000000000000L, new Texture(Gdx.files.internal("barricade.png")), 0, 0, null);
+        super(64, 81, 4000, 0, new Texture(Gdx.files.internal("barricade.png")), 0, 0, null, 50);
     }
     
     
