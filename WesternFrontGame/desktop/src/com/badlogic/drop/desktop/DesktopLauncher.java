@@ -1,8 +1,8 @@
 package com.badlogic.drop.desktop;
 
 import com.badlogic.gdx.backends.lwjgl.LwjglApplication;
-    import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
-    import scenes.WesternFront;
+import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
+import scenes.WesternFront;
 
 public class DesktopLauncher {
      

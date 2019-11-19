@@ -8,7 +8,7 @@ import com.badlogic.gdx.math.Rectangle;
 
 public class Zombie extends Rectangle{
     
-    private int speed = 300;
+    private int speed = 20;
     private int health = 300;
     private Texture imagem = new Texture(Gdx.files.internal("zombie.png"));
     private float lastAttackTime;
@@ -73,8 +73,8 @@ public class Zombie extends Rectangle{
     }
     
     public Zombie(){
-        width = 64;
-        height = 92;
+        width = imagem.getWidth();
+        height = imagem.getHeight();
         firstAttack = false;
     }
 }

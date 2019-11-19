@@ -13,6 +13,7 @@ public class MainMenuScreen implements Screen {
     private final Texture logoSoldier;
     private final Texture logoWesternFront;
     private final Texture logoLastStand;
+    public int stageNumber;
 
     public MainMenuScreen(WesternFront game) {
         this.game = game;
@@ -44,8 +45,15 @@ public class MainMenuScreen implements Screen {
         game.batch.end();
 
         if (Gdx.input.isTouched()) {
-            game.setScreen(new GameScreen(game));
-            dispose();
+            if (stageNumber == 0) {
+                game.setScreen(new GameScreen(game));
+                dispose();
+            }
+            if (stageNumber == 1) {
+                System.out.println("aaaaaaaaaa");
+                game.setScreen(new GameScreen(game));
+                dispose();
+            }
         }
     }
 
