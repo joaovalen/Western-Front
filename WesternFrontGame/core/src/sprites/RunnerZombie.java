@@ -10,12 +10,11 @@ import com.badlogic.gdx.graphics.Texture;
 
 /**
  *
- * @author 05200244
+ * @author estagiario.dti
  */
-public class Sniper extends Soldier{
+public class RunnerZombie extends Zombie{
     
-    public Sniper() {
-        super(64, 92, 300, 4000000000L, new Texture(Gdx.files.internal("sniper.png")), 1000, 500, new Texture(Gdx.files.internal("bullet.png")), 150);
+    public RunnerZombie() {
+        super(35, 300, 100, 1000000000, new Texture(Gdx.files.internal("zombie_runner.png")));
     }
-    
 }

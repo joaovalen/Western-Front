@@ -7,6 +7,9 @@ import sprites.Shoot;
 import sprites.Sniper;
 import sprites.Soldier;
 import sprites.Zombie;
+import sprites.RegularZombie;
+import sprites.TankZombie;
+import sprites.RunnerZombie;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
@@ -18,12 +21,10 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
-import com.badlogic.gdx.math.MathUtils;
 import static com.badlogic.gdx.math.MathUtils.random;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.Actor;
-import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.TimeUtils;
 import java.util.Iterator;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -171,22 +172,28 @@ public class GameScreen implements Screen {
         int tempspawn = random(0,100);
         if(tempspawn < 100 - waveNumber * 10){
             float posSpawn = squares.get(temppos).getY();
-            Zombie zombie = new Zombie();
+            Zombie zombie = new RegularZombie();
             zombie.x = Gdx.graphics.getWidth();
             zombie.y = posSpawn;
             zombies.add(zombie);
             lastZombieTime = TimeUtils.nanoTime();
         }else{
-            float posSpawn = squares.get(temppos).getY();
-            Zombie zombie = new Zombie();
-            zombie.x = Gdx.graphics.getWidth();
-            zombie.y = posSpawn;
-            zombies.add(zombie);
-            lastZombieTime = TimeUtils.nanoTime();    
-            zombie.setImagem(new Texture(Gdx.files.internal("zombie_tank.png")));
-            zombie.setSpeed(40);
-            zombie.setDamage(150);
-            zombie.setHealth(600);
+            int especial_zombie_type = random(1,2);
+            if (especial_zombie_type == 1){
+                float posSpawn = squares.get(temppos).getY();
+                Zombie zombie = new TankZombie();
+                zombie.x = Gdx.graphics.getWidth();
+                zombie.y = posSpawn;
+                zombies.add(zombie);
+                lastZombieTime = TimeUtils.nanoTime();
+            } else{
+                float posSpawn = squares.get(temppos).getY();
+                Zombie zombie = new RunnerZombie();
+                zombie.x = Gdx.graphics.getWidth();
+                zombie.y = posSpawn;
+                zombies.add(zombie);
+                lastZombieTime = TimeUtils.nanoTime();
+            }
         }
 
     }
@@ -432,7 +439,7 @@ public class GameScreen implements Screen {
                     }
                 }
                 
-                if (TimeUtils.nanoTime() - lastZombieTime > 8000000L){    
+                if (TimeUtils.nanoTime() - lastZombieTime > 800000000L){    
                     spawnZombie();
                 }
                 if (zombieKills >= 20 * waveNumber){

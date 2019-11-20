@@ -8,13 +8,24 @@ import com.badlogic.gdx.math.Rectangle;
 
 public class Zombie extends Rectangle{
     
-    private int speed = 20;
-    private int health = 300;
-    private Texture imagem = new Texture(Gdx.files.internal("zombie.png"));
+    private int speed;
+    private int health;
+    private Texture imagem;
     private float lastAttackTime;
-    private int damage = 100;
-    private int reloadTime = 1000000000;
-    private boolean firstAttack;
+    private int damage;
+    private int reloadTime;
+    private boolean firstAttack = true;
+    
+    public Zombie(int speed, int health, int damage, int reloadTime, Texture imagem){
+        this.width = imagem.getWidth();
+        this.height = imagem.getHeight();
+        this.firstAttack = false;
+        this.speed = speed;
+        this.health = health;
+        this.damage = damage;
+        this.reloadTime = reloadTime;
+        this.imagem = imagem;
+    }
 
     public boolean getFirstAttack() {
         return firstAttack;
@@ -72,9 +83,4 @@ public class Zombie extends Rectangle{
         this.health = health;
     }
     
-    public Zombie(){
-        width = imagem.getWidth();
-        height = imagem.getHeight();
-        firstAttack = false;
-    }
 }
