@@ -29,6 +29,10 @@ public class Soldier extends Rectangle {
         this.imagemBala = imagemBala;
         this.cost = cost;
     }
+    
+    public Soldier(){
+    
+    }
 
     public int getCost() {
         return cost;

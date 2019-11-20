@@ -66,6 +66,12 @@ public class GameScreen implements Screen {
     private Rectangle botaoMenu;
     private int zombieKills;
     private int waveNumber;
+    private CopyOnWriteArrayList<Rectangle> persons;
+    private Texture sniperImage;
+    private Texture mineImage;
+    private Texture supportImage;
+    private int vida;
+    private long spawnTime = 1000000000L;
     
     public GameScreen(final WesternFront game) {
         this.game = game;
@@ -77,6 +83,10 @@ public class GameScreen implements Screen {
         soldierImage = new Texture(Gdx.files.internal("soldier.png"));
         background = new Texture(Gdx.files.internal("mapapronto.png"));
         munitionImage = new Texture(Gdx.files.internal("munition.png"));
+        barricadeImage = new Texture(Gdx.files.internal("barricade.png"));
+        sniperImage = new Texture(Gdx.files.internal("sniper.png"));
+        mineImage = new Texture(Gdx.files.internal("landmineOff.png"));
+        supportImage = new Texture(Gdx.files.internal("suporte.png"));
 
         // Loading Music and Effects 
 //        dropSound = Gdx.audio.newSound(Gdx.files.internal("drop.wav"));
@@ -88,6 +98,7 @@ public class GameScreen implements Screen {
 //        rainMusic.play();
 
         //create the Camera and the SpriteBatch
+        vida = 100;
         waveNumber = 1;
         zombieKills = 0;
         botaoMenu = new Rectangle();
@@ -107,6 +118,7 @@ public class GameScreen implements Screen {
         munitions = new CopyOnWriteArrayList<>();
         soldiers = new CopyOnWriteArrayList<>();
         squares = new CopyOnWriteArrayList<>();
+        persons = new CopyOnWriteArrayList<>();
         for (int i = 0; i < 5; i++) {
             int y = 56 * i;
             for (int j = 0; j < 9; j++) {
@@ -119,26 +131,26 @@ public class GameScreen implements Screen {
                 squares.add(quad);
             }
         }
+        for (int i = 0; i < 5; i++) {
+            Rectangle rect = new Rectangle();
+            rect.x = 205 + 77 * i;
+            rect.y = 429;
+            rect.width = 50;
+            rect.height = 50;
+            persons.add(rect);
+        }
     }
 
-    private void pintartemp(){
+    private void pintartemp(String i){
         if(false){
             sR.begin(ShapeType.Filled);
             sR.setColor(Color.BLUE);
-            for (Shoot shoot : shoots) {
-                sR.rect(shoot.x, shoot.y, shoot.width, shoot.height);
-            }
-            for (Zombie zombie : zombies) {
-                sR.rect(zombie.x, zombie.y, zombie.width, zombie.height);
-
-            }
-            for (Soldier soldier : soldiers){
-                sR.rect(soldier.x, soldier.y, soldier.width, soldier.height);
-            }        
-            for (Square squa : squares) {
-                sR.rect(squa.x, squa.y, squa.width, squa.height);
-            }
-            sR.rect(botaoMenu.x, botaoMenu.y, botaoMenu.width, botaoMenu.height);
+            sR.rect(200, 68, 20, 20);
+//            for (Shoot shoot : shoots) {
+//                sR.rect(shoot.x, shoot.y, shoot.width, shoot.height);
+//            }
+//
+//            sR.rect(botaoMenu.x, botaoMenu.y, botaoMenu.width, botaoMenu.height);
             sR.end();
         }
     }
@@ -259,6 +271,7 @@ public class GameScreen implements Screen {
             zombie.x += -zombie.getSpeed() * Gdx.graphics.getDeltaTime();
             if (zombie.x < 0 - zombie.width){
                 zombies.remove(zombie);
+                vida -= 10;
             }
             for (Iterator<Soldier> it = soldiers.iterator(); it.hasNext();){
                 Soldier soldier = it.next();
@@ -370,13 +383,52 @@ public class GameScreen implements Screen {
                 for (Munition munition : munitions){
                     batch.draw(munitionImage, munition.x, munition.y);
                 }
+                int temp = 0;
+                for (Rectangle rect : persons) {
+                    if (temp == 0) {
+                        batch.draw(soldierImage, rect.x, rect.y);
+                        Atirador soldier = new Atirador();
+                        font.draw(batch, String.valueOf(soldier.getCost()), rect.x, rect.y - 5);
+                    }
+                    if (temp == 1) {
+                        batch.draw(sniperImage, rect.x, rect.y);
+                        Sniper soldier = new Sniper();
+                        font.draw(batch, String.valueOf(soldier.getCost()), rect.x, rect.y - 5);
+                    }
+                    if (temp == 2) {
+                        rect.y = 424;
+                        rect.x = 272 + 77;
+                        batch.draw(supportImage, rect.x, rect.y);
+                        Support soldier = new Support();
+                        font.draw(batch, String.valueOf(soldier.getCost()), rect.x + 15, rect.y - 5);
+                    }
+                    if (temp == 3) {
+                        batch.draw(barricadeImage, rect.x, rect.y);
+                        Barricade soldier = new Barricade();
+                        font.draw(batch, String.valueOf(soldier.getCost()), rect.x, rect.y - 5);
+                    }
+                    if (temp == 4) {
+                        batch.draw(mineImage, rect.x, rect.y);
+                        LandMine soldier = new LandMine();
+                        font.draw(batch, String.valueOf(soldier.getCost()), rect.x, rect.y - 5);
+                    }
+                    temp++;
+                    
+                }
+        
         font.draw(batch, String.valueOf(currency), 10, 470);
+        font.draw(batch, "Wave: " + Integer.toString(waveNumber), 14, 12);
         batch.end();
-
-        pintartemp();
 
 	switch (state) {
             case RUN:
+                
+                if(vida <= 0){
+                    MainMenuScreen voltar = new MainMenuScreen(game);
+                    voltar.stageNumber = 1;
+                    game.setScreen(voltar);
+                    dispose();               
+                }
                 
             	if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_1))
                     teclaAtual = "1";
@@ -387,7 +439,7 @@ public class GameScreen implements Screen {
                 if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_4))
                     teclaAtual = "4";
                 if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_5))
-                    teclaAtual = "5";          
+                    teclaAtual = "5";                      
                 
                 if (Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)){
                     clickedOnAmmo = true;
@@ -402,6 +454,22 @@ public class GameScreen implements Screen {
                             clickedOnAmmo = false;
                         }
                     }
+                }
+                
+                if (teclaAtual == "1") {
+                    pintartemp("1");
+                }
+                if (teclaAtual == "2") {
+                    pintartemp("2");
+                }
+                if (teclaAtual == "3") {
+                    pintartemp("3");
+                }
+                if (teclaAtual == "4") {
+                    pintartemp("4");
+                }
+                if (teclaAtual == "5") {
+                    pintartemp("5");
                 }
                     
                 if(clickedOnAmmo){    
@@ -439,17 +507,13 @@ public class GameScreen implements Screen {
                     }
                 }
                 
-                if (TimeUtils.nanoTime() - lastZombieTime > 800000000L){    
+                if (TimeUtils.nanoTime() - lastZombieTime > spawnTime){    
                     spawnZombie();
                 }
                 if (zombieKills >= 20 * waveNumber){
                       waveNumber++;
-//                    MainMenuScreen voltar = new MainMenuScreen(game);
-//                    voltar.stageNumber = 1;
-//                    game.setScreen(voltar);
-//                    dispose();
+                      spawnTime -= 20000000L;
                 }
-                System.out.println(waveNumber);
                 
                 batch.begin();
                 updateSoldier();

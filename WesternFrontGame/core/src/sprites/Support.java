@@ -25,6 +25,7 @@ public class Support extends Soldier{
     public Support() {
         super(64, 92, 300, 5000000000L, new Texture(Gdx.files.internal("suporte.png")), 1000, 500, new Texture(Gdx.files.internal("munition.png")), 50);
         hasMunition = false;
+        this.height -= 30;
     }
     
     

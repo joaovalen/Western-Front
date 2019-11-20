@@ -32,8 +32,8 @@ public class Munition extends Rectangle {
     public Munition(Support support) {
         this.image = support.getImagemBala();
         this.support = support;
-        this.x = support.x + 12;
-        this.y = support.y + support.height - 10;
+        this.x = support.x + 6;
+        this.y = support.y + support.height + 30;
         this.width = support.getImagemBala().getWidth();
         this.height = support.getImagemBala().getHeight();
     }
