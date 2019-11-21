@@ -14,7 +14,15 @@ public class Soldier extends Rectangle {
     private int damage;
     private Square square;
     private int cost;
-    
+    private boolean firstAttack;
+
+    public boolean isFirstAttack() {
+        return firstAttack;
+    }
+
+    public void setFirstAttack(boolean firstAttack) {
+        this.firstAttack = firstAttack;
+    }
     
     public Soldier(int health, long reloadTime, int bulletSpeed, int damage, int cost, Texture imagem, Texture imagemBala) {
         this.imagem = imagem;
@@ -27,6 +35,7 @@ public class Soldier extends Rectangle {
         this.damage = damage;
         this.imagemBala = imagemBala;
         this.cost = cost;
+        firstAttack = false;
     }
     
     public Soldier(){

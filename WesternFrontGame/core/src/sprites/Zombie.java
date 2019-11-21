@@ -14,7 +14,7 @@ public class Zombie extends Rectangle{
     private float lastAttackTime;
     private int damage;
     private int reloadTime;
-    private boolean firstAttack = true;
+    private boolean firstAttack = false;
     
     public Zombie(int speed, int health, int damage, int reloadTime, Texture imagem){
         this.width = imagem.getWidth();

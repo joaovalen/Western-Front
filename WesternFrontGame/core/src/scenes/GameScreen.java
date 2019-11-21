@@ -71,7 +71,8 @@ public class GameScreen implements Screen {
     private Texture mineImage;
     private Texture supportImage;
     private int vida;
-    private long spawnTime = 1000000000L;
+    private long spawnTime = 100000000000L;
+    private long tempoStart = TimeUtils.nanoTime();
     
     public GameScreen(final WesternFront game) {
         this.game = game;
@@ -213,7 +214,7 @@ public class GameScreen implements Screen {
     private void spawnShoot(Soldier soldier) {
         Shoot shoot = new Shoot();
         shoot.x = soldier.x + 25;
-        shoot.y = soldier.y + soldier.width - 30;
+        shoot.y = soldier.y + soldier.width - 10;
         shoot.setDamage(soldier.getDamage());
         shoot.setSpeed(soldier.getBulletSpeed());
         shoot.setImagem(soldier.getImagemBala());
@@ -334,9 +335,14 @@ public class GameScreen implements Screen {
             if(soldier.getClass().getSimpleName().equals("Support")){
                 if (TimeUtils.nanoTime() - soldier.getLastShotTime() > soldier.getReloadTime()) { 
                     Support supp = (Support) soldier;
-                    if(supp.getHasMunition() == false){
-                        spawnMunition(supp);
+                    if(soldier.isFirstAttack() == true){
+                        if(supp.getHasMunition() == false){
+                            spawnMunition(supp);
+                           
+                        }  
+                      
                     }
+                    soldier.setFirstAttack(true); 
                 }
             }
             
@@ -507,7 +513,7 @@ public class GameScreen implements Screen {
                     }
                 }
                 
-                if (TimeUtils.nanoTime() - lastZombieTime > spawnTime){    
+                if (TimeUtils.nanoTime() - lastZombieTime > spawnTime && TimeUtils.nanoTime() - tempoStart >= 30000000000L){    
                     spawnZombie();
                 }
                 if (zombieKills >= 20 * waveNumber){
