@@ -15,6 +15,7 @@ import com.badlogic.gdx.graphics.Texture;
 public class RunnerZombie extends Zombie{
     
     public RunnerZombie() {
-        super(35, 400, 100, 1000000000, new Texture(Gdx.files.internal("zombie_runner.png")));
+        // Speed / Health / Damage / Atack speed / Textura
+        super(20, 200, 100, 1000000000, new Texture(Gdx.files.internal("zombie_runner.png")));
     }
 }

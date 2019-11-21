@@ -1,17 +1,19 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
 package sprites;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.math.Rectangle;
-import sprites.Soldier;
-
 
 public class Barricade extends Soldier {
     
     public Barricade() {
-        super(64, 81, 4000, 0, new Texture(Gdx.files.internal("barricade.png")), 0, 0, null, 50);
+        // Health, Reaload Time, Bullet Speed, Damage, Cost, Image, Bullet Image     
+        super(4000, 0, 0, 0, 50, new Texture(Gdx.files.internal("barricade.png")), null);
     }
     
-    
-    
+ 
 }

@@ -1,9 +1,7 @@
 package sprites;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.Rectangle;
-import com.badlogic.gdx.utils.TimeUtils;
 
 public class Soldier extends Rectangle {
 
@@ -17,7 +15,8 @@ public class Soldier extends Rectangle {
     private Square square;
     private int cost;
     
-    public Soldier(int width, int height, int health, long reloadTime, Texture imagem, int bulletSpeed, int damage, Texture imagemBala, int cost) {
+    
+    public Soldier(int health, long reloadTime, int bulletSpeed, int damage, int cost, Texture imagem, Texture imagemBala) {
         this.imagem = imagem;
         this.width = imagem.getWidth(); 
         this.height = imagem.getHeight();

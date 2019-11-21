@@ -62,7 +62,7 @@ public class GameScreen implements Screen {
     private String teclaAtual;
     private Texture barricadeImage;
     private CopyOnWriteArrayList<Square> squares;
-    private final boolean TESTELIVRE = true;
+    private final boolean TESTELIVRE = false;
     private Rectangle botaoMenu;
     private int zombieKills;
     private int waveNumber;

@@ -15,6 +15,7 @@ import com.badlogic.gdx.graphics.Texture;
 public class TankZombie extends Zombie {
     
      public TankZombie() {
-        super(20, 500, 100, 1000000000, new Texture(Gdx.files.internal("zombie_tank.png")));
+        // Speed / Health / Damage / Atack speed / Textura
+        super(7, 500, 100, 1000000000, new Texture(Gdx.files.internal("zombie_tank.png")));
     }
 }

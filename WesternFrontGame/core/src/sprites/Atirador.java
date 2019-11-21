@@ -5,20 +5,16 @@
  */
 package sprites;
 
-import sprites.Soldier;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 
-/**
- *
- * @author 05200244
- */
 public class Atirador extends Soldier {
 
     public Atirador() {
-        super(64, 92, 300, 1000000000L, new Texture(Gdx.files.internal("soldier.png")), 200, 100, new Texture(Gdx.files.internal("bullet.png")), 100);
+        // Health, Reload Time, Bullet Speed, Damage, Cost, Image, Bullet Image     
+        super(300, 1500000000L, 200, 20, 100, new Texture(Gdx.files.internal("soldier.png")), new Texture(Gdx.files.internal("bullet.png")));
         this.height -= 10;
     }
     
-    
+   
 }
