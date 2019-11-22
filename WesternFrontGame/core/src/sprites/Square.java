@@ -6,6 +6,17 @@ import com.badlogic.gdx.math.Rectangle;
 public class Square extends Rectangle {
     
     private boolean occupied;
+    private Soldier soldier;
+
+    public Soldier getSoldier() {
+        return soldier;
+    }
+
+    public void setSoldier(Soldier soldier) {
+        this.soldier = soldier;
+    }
+    
+    
 
     public boolean isOccupied() {
         return occupied;

@@ -73,6 +73,8 @@ public class GameScreen implements Screen {
     private int vida;
     private long spawnTime = 100000000000L;
     private long tempoStart = TimeUtils.nanoTime();
+    private CopyOnWriteArrayList<Munition> ammoRandom;
+    private long lastRandomTime;
     
     public GameScreen(final WesternFront game) {
         this.game = game;
@@ -99,6 +101,7 @@ public class GameScreen implements Screen {
 //        rainMusic.play();
 
         //create the Camera and the SpriteBatch
+        lastRandomTime = TimeUtils.nanoTime();
         vida = 100;
         waveNumber = 1;
         zombieKills = 0;
@@ -114,6 +117,7 @@ public class GameScreen implements Screen {
         font = new BitmapFont();
         currency = 50; 
         teclaAtual = "";
+        ammoRandom = new CopyOnWriteArrayList<>();
         shoots = new CopyOnWriteArrayList<>();
         zombies = new CopyOnWriteArrayList<>();
         munitions = new CopyOnWriteArrayList<>();
@@ -164,6 +168,7 @@ public class GameScreen implements Screen {
             soldier.setSquare(square);
             soldiers.add(soldier);
             square.setOccupied(true);
+            square.setSoldier(soldier);
             currency -= soldier.getCost();
         }
     }
@@ -176,6 +181,7 @@ public class GameScreen implements Screen {
             soldier.setSquare(square);
             soldiers.add(soldier);
             square.setOccupied(true);
+            square.setSoldier(soldier);
             currency -= soldier.getCost();
         }
     }
@@ -230,6 +236,7 @@ public class GameScreen implements Screen {
             soldier.setSquare(square);
             soldiers.add(soldier);
             square.setOccupied(true);
+            square.setSoldier(soldier);
             currency -= soldier.getCost();
         }
     }
@@ -241,6 +248,12 @@ public class GameScreen implements Screen {
         munitions.add(munition);
     }
     
+    private void spawnRandomAmmo(){
+        Munition munition = new Munition();
+        ammoRandom.add(munition);
+        lastRandomTime = TimeUtils.nanoTime();
+    }
+    
     private void spawnBarricade(float x, float y, Square square){
         Barricade soldier = new Barricade();
         if (currency >= soldier.getCost() || TESTELIVRE) {
@@ -249,6 +262,7 @@ public class GameScreen implements Screen {
             soldier.setSquare(square);
             soldiers.add(soldier);
             square.setOccupied(true);
+            square.setSoldier(soldier);
             currency -= soldier.getCost();
         }
     }
@@ -262,14 +276,26 @@ public class GameScreen implements Screen {
             soldier.setSquare(square);
             soldiers.add(soldier);
             square.setOccupied(true);
+            square.setSoldier(soldier);
             currency -= soldier.getCost();
         }      
+    }
+    
+    private void breakSoldier(Square square){
+        Soldier soldier = square.getSoldier();
+        soldiers.remove(soldier);
+        square.setOccupied(false);
+    }
+    
+    private void breakSoldier(Soldier soldier){
+        soldier.getSquare().setOccupied(false);
+        soldiers.remove(soldier);
     }
     
     private void updateZombies(){
         for (Iterator<Zombie> zb = zombies.iterator(); zb.hasNext();) {
             Zombie zombie = zb.next();
-            zombie.x += -zombie.getSpeed() * Gdx.graphics.getDeltaTime();
+            zombie.x -= zombie.getSpeed() * Gdx.graphics.getDeltaTime();
             if (zombie.x < 0 - zombie.width){
                 zombies.remove(zombie);
                 vida -= 10;
@@ -389,6 +415,9 @@ public class GameScreen implements Screen {
                 for (Munition munition : munitions){
                     batch.draw(munitionImage, munition.x, munition.y);
                 }
+                for (Munition munition : ammoRandom){
+                    batch.draw(munitionImage, munition.x, munition.y);
+                }
                 int temp = 0;
                 for (Rectangle rect : persons) {
                     if (temp == 0) {
@@ -445,7 +474,9 @@ public class GameScreen implements Screen {
                 if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_4))
                     teclaAtual = "4";
                 if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_5))
-                    teclaAtual = "5";                      
+                    teclaAtual = "5";    
+                if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_6))
+                    teclaAtual = "6";  
                 
                 if (Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)){
                     clickedOnAmmo = true;
@@ -459,6 +490,20 @@ public class GameScreen implements Screen {
                             currency += 25;
                             clickedOnAmmo = false;
                         }
+                    }
+                    for(Iterator<Munition> mu = ammoRandom.iterator(); mu.hasNext();){
+                        Munition ammo = mu.next();
+                        if(ammo.contains(touchPos.x, touchPos.y)){
+                            ammoRandom.remove(ammo);
+                            currency += 25;
+                            clickedOnAmmo = false;
+                        }
+                    }
+                }
+                for(Iterator<Munition> mu = ammoRandom.iterator(); mu.hasNext();){
+                    Munition ammo = mu.next();
+                    if (ammo.getStopY() < ammo.y) {
+                        ammo.y -= 30 * Gdx.graphics.getDeltaTime();
                     }
                 }
                 
@@ -477,44 +522,64 @@ public class GameScreen implements Screen {
                 if (teclaAtual == "5") {
                     pintartemp("5");
                 }
+                if (teclaAtual == "6") {
+                    pintartemp("6");
+                }
                     
                 if(clickedOnAmmo){    
                     if (Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)){ 
                         Vector3 touchPos = new Vector3();
                         touchPos.set(Gdx.input.getX(), Gdx.input.getY(), 0);
                         camera.unproject(touchPos.set(Gdx.input.getX(), Gdx.input.getY(), 0));
-                    for(Square square : squares){
-                        if (square.contains(touchPos.x, touchPos.y)) {
-                            if (square.isOccupied() == false) {
-                                float posx = square.x;
-                                float posy = square.y + 15;
-                                switch (teclaAtual) {
-                                    case "1":
-                                        spawnAtirador(posx, posy, square);
-                                        break;
-                                    case "2":
-                                        spawnSniper(posx, posy, square);
-                                        break;
-                                    case "3":
-                                        spawnSupport(posx, posy, square);
-                                        break;
-                                    case "4":
-                                        spawnBarricade(posx, posy, square);
-                                        break;
-                                    case "5":
-                                        spawnLandMine(posx, posy, square);
-                                        break;
-                                    case "":
-                                        spawnAtirador(posx, posy, square);
+                        for(Square square : squares){
+                            if (square.contains(touchPos.x, touchPos.y)) {
+                                if (square.isOccupied() == false) {
+                                    float posx = square.x;
+                                    float posy = square.y + 15;
+                                    switch (teclaAtual) {
+                                        case "1":
+                                            spawnAtirador(posx, posy, square);
+                                            break;
+                                        case "2":
+                                            spawnSniper(posx, posy, square);
+                                            break;
+                                        case "3":
+                                            spawnSupport(posx, posy, square);
+                                            break;
+                                        case "4":
+                                            spawnBarricade(posx, posy, square);
+                                            break;
+                                        case "5":
+                                            spawnLandMine(posx, posy, square);
+                                            break;
+                                        case "6":
+                                            System.out.println("asdasdasda");
+                                            if (square.isOccupied()) {
+                                                System.out.println("222222222");
+                                                breakSoldier(square);
+                                            }
+                                            
+                                        case "":
+                                            System.out.println("SELECIONE UMA TECLA");
+                                    }
                                 }
                             }
                         }
-                    }    
+                        if(teclaAtual.equals("6")){
+                            for(Soldier soldier : soldiers){
+                                if (soldier.contains(touchPos.x, touchPos.y)) {
+                                    breakSoldier(soldier);
+                                }
+                            }
+                        }
                     }
                 }
                 
                 if (TimeUtils.nanoTime() - lastZombieTime > spawnTime && TimeUtils.nanoTime() - tempoStart >= 30000000000L){    
                     spawnZombie();
+                }
+                if (TimeUtils.nanoTime() - lastRandomTime > 6000000000L) {
+                    spawnRandomAmmo();
                 }
                 if (zombieKills >= 20 * waveNumber){
                       waveNumber++;
