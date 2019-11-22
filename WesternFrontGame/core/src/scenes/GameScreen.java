@@ -112,7 +112,7 @@ public class GameScreen implements Screen {
         batch = new SpriteBatch();
         sR = new ShapeRenderer();
         font = new BitmapFont();
-        currency = 75; 
+        currency = 50; 
         teclaAtual = "";
         shoots = new CopyOnWriteArrayList<>();
         zombies = new CopyOnWriteArrayList<>();
@@ -456,7 +456,7 @@ public class GameScreen implements Screen {
                         if(ammo.contains(touchPos.x, touchPos.y)){
                             munitions.remove(ammo);
                             ammo.getSupport().setHasMunition(false);
-                            currency += 50;
+                            currency += 25;
                             clickedOnAmmo = false;
                         }
                     }
