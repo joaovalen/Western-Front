@@ -41,40 +41,46 @@ public class GameScreen implements Screen {
     private final Texture soldierImage;
     private final Texture background;
     // Camera and Sprite Batch
-    private OrthographicCamera camera;
-    private SpriteBatch batch;
+    private final OrthographicCamera camera;
+    private final SpriteBatch batch;
     // Objects
-    private CopyOnWriteArrayList<Shoot> shoots;
-    private CopyOnWriteArrayList<Zombie> zombies;
+    private final CopyOnWriteArrayList<Shoot> shoots;
+    private final CopyOnWriteArrayList<Zombie> zombies;
     private long lastZombieTime;
     private State state;
-    private BitmapFont font;
+    private final BitmapFont font;
     private int count_raindrops;
     private int count_zombies;
-    private CopyOnWriteArrayList<Soldier> soldiers;
+    private final CopyOnWriteArrayList<Soldier> soldiers;
     private int count_soldier;
-    private ShapeRenderer sR;
+    private final ShapeRenderer sR;
     private Actor actor;
     private int currency;
-    private CopyOnWriteArrayList<Munition> munitions;
-    private Texture munitionImage;
+    private final CopyOnWriteArrayList<Munition> munitions;
+    private final Texture munitionImage;
     private boolean clickedOnAmmo;
     private String teclaAtual;
-    private Texture barricadeImage;
-    private CopyOnWriteArrayList<Square> squares;
+    private final Texture barricadeImage;
+    private final CopyOnWriteArrayList<Square> squares;
     private final boolean TESTELIVRE = false;
-    private Rectangle botaoMenu;
+    private final Rectangle botaoMenu;
     private int zombieKills;
     private int waveNumber;
-    private CopyOnWriteArrayList<Rectangle> persons;
-    private Texture sniperImage;
-    private Texture mineImage;
-    private Texture supportImage;
+    private final CopyOnWriteArrayList<Rectangle> persons;
+    private final Texture sniperImage;
+    private final Texture mineImage;
+    private final Texture supportImage;
     private int vida;
-    private long spawnTime = 100000000000L;
-    private long tempoStart = TimeUtils.nanoTime();
-    private CopyOnWriteArrayList<Munition> ammoRandom;
+    private long spawnTime = 9000000000L;
+    private final long tempoStart = TimeUtils.nanoTime();
+    private final CopyOnWriteArrayList<Munition> ammoRandom;
     private long lastRandomTime;
+    private final Texture coinImage;
+    private final Texture heartImage;
+    private final int SCREEN_WIDTH = Gdx.graphics.getWidth();
+    private final int SCREEN_HEIGHT = Gdx.graphics.getHeight();     
+    private final Texture arrowImage;
+    private final Texture shovelImage;
     
     public GameScreen(final WesternFront game) {
         this.game = game;
@@ -90,6 +96,10 @@ public class GameScreen implements Screen {
         sniperImage = new Texture(Gdx.files.internal("sniper.png"));
         mineImage = new Texture(Gdx.files.internal("landmineOff.png"));
         supportImage = new Texture(Gdx.files.internal("suporte.png"));
+        coinImage = new Texture(Gdx.files.internal("moeda.png"));
+        heartImage = new Texture(Gdx.files.internal("heart.png"));
+        arrowImage = new Texture(Gdx.files.internal("seta.png"));
+        shovelImage = new Texture(Gdx.files.internal("shovel.png"));
 
         // Loading Music and Effects 
 //        dropSound = Gdx.audio.newSound(Gdx.files.internal("drop.wav"));
@@ -101,6 +111,7 @@ public class GameScreen implements Screen {
 //        rainMusic.play();
 
         //create the Camera and the SpriteBatch
+        teclaAtual = "1";
         lastRandomTime = TimeUtils.nanoTime();
         vida = 100;
         waveNumber = 1;
@@ -116,7 +127,6 @@ public class GameScreen implements Screen {
         sR = new ShapeRenderer();
         font = new BitmapFont();
         currency = 50; 
-        teclaAtual = "";
         ammoRandom = new CopyOnWriteArrayList<>();
         shoots = new CopyOnWriteArrayList<>();
         zombies = new CopyOnWriteArrayList<>();
@@ -136,7 +146,7 @@ public class GameScreen implements Screen {
                 squares.add(quad);
             }
         }
-        for (int i = 0; i < 5; i++) {
+        for (int i = 0; i < 6; i++) {
             Rectangle rect = new Rectangle();
             rect.x = 205 + 77 * i;
             rect.y = 429;
@@ -285,11 +295,13 @@ public class GameScreen implements Screen {
         Soldier soldier = square.getSoldier();
         soldiers.remove(soldier);
         square.setOccupied(false);
+        currency += soldier.getCost()/2;
     }
     
     private void breakSoldier(Soldier soldier){
         soldier.getSquare().setOccupied(false);
         soldiers.remove(soldier);
+        currency += soldier.getCost()/2;
     }
     
     private void updateZombies(){
@@ -415,9 +427,6 @@ public class GameScreen implements Screen {
                 for (Munition munition : munitions){
                     batch.draw(munitionImage, munition.x, munition.y);
                 }
-                for (Munition munition : ammoRandom){
-                    batch.draw(munitionImage, munition.x, munition.y);
-                }
                 int temp = 0;
                 for (Rectangle rect : persons) {
                     if (temp == 0) {
@@ -447,20 +456,29 @@ public class GameScreen implements Screen {
                         LandMine soldier = new LandMine();
                         font.draw(batch, String.valueOf(soldier.getCost()), rect.x, rect.y - 5);
                     }
+                    if (temp == 5) {
+                        batch.draw(shovelImage, rect.x - 10, rect.y - 10);
+                    }
                     temp++;
                     
                 }
-        
-        font.draw(batch, String.valueOf(currency), 10, 470);
-        font.draw(batch, "Wave: " + Integer.toString(waveNumber), 14, 12);
+        Rectangle temprect = persons.get(Integer.parseInt(teclaAtual) - 1);        
+        batch.draw(arrowImage, temprect.x - 5, temprect.y - 60);
+        font.draw(batch, String.valueOf(currency), 48, 461);
+        batch.draw(coinImage, 4, 438);
+        font.draw(batch, "Wave: " + Integer.toString(waveNumber), 16, 18);
+        batch.draw(heartImage, SCREEN_WIDTH - heartImage.getWidth() - 10, 5);
+        font.draw(batch, String.valueOf(vida), SCREEN_WIDTH - heartImage.getWidth() + 9, 35);
+        for (Munition munition : ammoRandom){
+            batch.draw(munitionImage, munition.x, munition.y);
+        }
         batch.end();
 
 	switch (state) {
             case RUN:
                 
                 if(vida <= 0){
-                    MainMenuScreen voltar = new MainMenuScreen(game);
-                    voltar.stageNumber = 1;
+                    GameOverScreen voltar = new GameOverScreen(game);
                     game.setScreen(voltar);
                     dispose();               
                 }
@@ -507,22 +525,22 @@ public class GameScreen implements Screen {
                     }
                 }
                 
-                if (teclaAtual == "1") {
+                if (teclaAtual.equals("1")) {
                     pintartemp("1");
                 }
-                if (teclaAtual == "2") {
+                if (teclaAtual.equals("2")) {
                     pintartemp("2");
                 }
-                if (teclaAtual == "3") {
+                if (teclaAtual.equals("3")) {
                     pintartemp("3");
                 }
-                if (teclaAtual == "4") {
+                if (teclaAtual.equals("4")) {
                     pintartemp("4");
                 }
-                if (teclaAtual == "5") {
+                if (teclaAtual.equals("5")) {
                     pintartemp("5");
                 }
-                if (teclaAtual == "6") {
+                if (teclaAtual.equals("6")) {
                     pintartemp("6");
                 }
                     
@@ -530,6 +548,7 @@ public class GameScreen implements Screen {
                     if (Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)){ 
                         Vector3 touchPos = new Vector3();
                         touchPos.set(Gdx.input.getX(), Gdx.input.getY(), 0);
+                        System.out.println(touchPos.x +" "+ touchPos.y);
                         camera.unproject(touchPos.set(Gdx.input.getX(), Gdx.input.getY(), 0));
                         for(Square square : squares){
                             if (square.contains(touchPos.x, touchPos.y)) {
