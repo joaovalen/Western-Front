@@ -62,7 +62,7 @@ public class GameScreen implements Screen {
     private String teclaAtual;
     private final Texture barricadeImage;
     private final CopyOnWriteArrayList<Square> squares;
-    private final boolean TESTELIVRE = false;
+    private final boolean TESTELIVRE = true;
     private final Rectangle botaoMenu;
     private int zombieKills;
     private int waveNumber;
@@ -71,7 +71,7 @@ public class GameScreen implements Screen {
     private final Texture mineImage;
     private final Texture supportImage;
     private int vida;
-    private long spawnTime = 9000000000L;
+    private long spawnTime;
     private final long tempoStart = TimeUtils.nanoTime();
     private final CopyOnWriteArrayList<Munition> ammoRandom;
     private long lastRandomTime;
@@ -91,7 +91,7 @@ public class GameScreen implements Screen {
         zombieImage = new Texture(Gdx.files.internal("zombie.png"));
         soldierImage = new Texture(Gdx.files.internal("soldier.png"));
         background = new Texture(Gdx.files.internal("mapapronto.png"));
-        munitionImage = new Texture(Gdx.files.internal("munition.png"));
+        munitionImage = new Texture(Gdx.files.internal("moeda.png"));
         barricadeImage = new Texture(Gdx.files.internal("barricade.png"));
         sniperImage = new Texture(Gdx.files.internal("sniper.png"));
         mineImage = new Texture(Gdx.files.internal("landmineOff.png"));
@@ -121,6 +121,7 @@ public class GameScreen implements Screen {
         botaoMenu.y = 430;
         botaoMenu.width = 150;
         botaoMenu.height = 50;
+        spawnTime = 1000000000L;
         camera = new OrthographicCamera();
         camera.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         batch = new SpriteBatch();
@@ -203,7 +204,7 @@ public class GameScreen implements Screen {
             float posSpawn = squares.get(temppos).getY();
             Zombie zombie = new RegularZombie();
             zombie.x = Gdx.graphics.getWidth();
-            zombie.y = posSpawn;
+            zombie.y = posSpawn + 5;
             zombies.add(zombie);
             lastZombieTime = TimeUtils.nanoTime();
         }else{
@@ -212,14 +213,14 @@ public class GameScreen implements Screen {
                 float posSpawn = squares.get(temppos).getY();
                 Zombie zombie = new TankZombie();
                 zombie.x = Gdx.graphics.getWidth();
-                zombie.y = posSpawn;
+                zombie.y = posSpawn + 5;
                 zombies.add(zombie);
                 lastZombieTime = TimeUtils.nanoTime();
             } else{
                 float posSpawn = squares.get(temppos).getY();
                 Zombie zombie = new RunnerZombie();
                 zombie.x = Gdx.graphics.getWidth();
-                zombie.y = posSpawn;
+                zombie.y = posSpawn + 5;
                 zombies.add(zombie);
                 lastZombieTime = TimeUtils.nanoTime();
             }
@@ -248,6 +249,7 @@ public class GameScreen implements Screen {
             square.setOccupied(true);
             square.setSoldier(soldier);
             currency -= soldier.getCost();
+            soldier.setLastShotTime(TimeUtils.nanoTime());
         }
     }
     
@@ -373,14 +375,13 @@ public class GameScreen implements Screen {
             if(soldier.getClass().getSimpleName().equals("Support")){
                 if (TimeUtils.nanoTime() - soldier.getLastShotTime() > soldier.getReloadTime()) { 
                     Support supp = (Support) soldier;
-                    if(soldier.isFirstAttack() == true){
+                    if(supp.isFirstAttack() == true)
+                        System.out.println("11111111");
                         if(supp.getHasMunition() == false){
+                            System.out.println("22222222222");
                             spawnMunition(supp);
-                           
-                        }  
-                      
-                    }
-                    soldier.setFirstAttack(true); 
+                        }   
+                soldier.setFirstAttack(true); 
                 }
             }
             
@@ -554,7 +555,7 @@ public class GameScreen implements Screen {
                             if (square.contains(touchPos.x, touchPos.y)) {
                                 if (square.isOccupied() == false) {
                                     float posx = square.x;
-                                    float posy = square.y + 15;
+                                    float posy = square.y + 5;
                                     switch (teclaAtual) {
                                         case "1":
                                             spawnAtirador(posx, posy, square);
@@ -652,7 +653,13 @@ public class GameScreen implements Screen {
 
     @Override
     public void dispose() {
-
+        shoots.clear();
+        zombies.clear();
+        soldiers.clear();
+        munitions.clear();
+        squares.clear();
+        persons.clear();
+        ammoRandom.clear();
     }
 
     public enum State {

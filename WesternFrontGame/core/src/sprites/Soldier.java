@@ -2,6 +2,7 @@ package sprites;
 
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.utils.TimeUtils;
 
 public class Soldier extends Rectangle {
 
@@ -36,6 +37,7 @@ public class Soldier extends Rectangle {
         this.imagemBala = imagemBala;
         this.cost = cost;
         firstAttack = false;
+        lastShotTime = TimeUtils.nanoTime();
     }
     
     public Soldier(){
