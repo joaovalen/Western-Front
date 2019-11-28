@@ -11,6 +11,7 @@ public class DesktopLauncher {
 		config.title = "Western Front";
 		config.width = 800;
 		config.height = 480;
+                config.forceExit = true;
 		new LwjglApplication(new WesternFront(), config);
 	}
 }

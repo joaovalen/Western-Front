@@ -26,8 +26,11 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.utils.TimeUtils;
+import java.io.IOException;
 import java.util.Iterator;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import sprites.Munition;
 import sprites.Square;
 import sprites.Support;
@@ -101,15 +104,6 @@ public class GameScreen implements Screen {
         arrowImage = new Texture(Gdx.files.internal("seta.png"));
         shovelImage = new Texture(Gdx.files.internal("shovel.png"));
 
-        // Loading Music and Effects 
-//        dropSound = Gdx.audio.newSound(Gdx.files.internal("drop.wav"));
-//        rainMusic = Gdx.audio.newMusic(Gdx.files.internal("Akatsuki.mp3"));
-        
-
-        // start the playback of the background music immediately
-//        rainMusic.setLooping(true);
-//        rainMusic.play();
-
         //create the Camera and the SpriteBatch
         teclaAtual = "1";
         lastRandomTime = TimeUtils.nanoTime();
@@ -121,7 +115,7 @@ public class GameScreen implements Screen {
         botaoMenu.y = 430;
         botaoMenu.width = 150;
         botaoMenu.height = 50;
-        spawnTime = 1000000000L;
+        spawnTime = 5000000000L;
         camera = new OrthographicCamera();
         camera.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         batch = new SpriteBatch();
@@ -398,6 +392,8 @@ public class GameScreen implements Screen {
         }    
     }
 
+
+    
     @Override
     public void render(float delta) {
         
@@ -464,7 +460,7 @@ public class GameScreen implements Screen {
                     
                 }
         Rectangle temprect = persons.get(Integer.parseInt(teclaAtual) - 1);        
-        batch.draw(arrowImage, temprect.x - 5, temprect.y - 60);
+        batch.draw(arrowImage, temprect.x - 15, temprect.y - 70);
         font.draw(batch, String.valueOf(currency), 48, 461);
         batch.draw(coinImage, 4, 438);
         font.draw(batch, "Wave: " + Integer.toString(waveNumber), 16, 18);
@@ -496,6 +492,10 @@ public class GameScreen implements Screen {
                     teclaAtual = "5";    
                 if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_6))
                     teclaAtual = "6";  
+                
+                if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)){
+                    System.exit(0);
+                }
                 
                 if (Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)){
                     clickedOnAmmo = true;
@@ -595,7 +595,7 @@ public class GameScreen implements Screen {
                     }
                 }
                 
-                if (TimeUtils.nanoTime() - lastZombieTime > spawnTime && TimeUtils.nanoTime() - tempoStart >= 30000000000L){    
+                if (TimeUtils.nanoTime() - lastZombieTime > spawnTime && TimeUtils.nanoTime() - tempoStart >= 40000000000L){    
                     spawnZombie();
                 }
                 if (TimeUtils.nanoTime() - lastRandomTime > 6000000000L) {
