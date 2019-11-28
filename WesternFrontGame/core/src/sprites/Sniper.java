@@ -16,7 +16,8 @@ public class Sniper extends Soldier{
     
     public Sniper() {
         // Health, Reaload Time, Bullet Speed, Damage, Cost, Image, Bullet Image     
-        super(300, 4000000000L, 1000, 500, 150, new Texture(Gdx.files.internal("sniper.png")), new Texture(Gdx.files.internal("bullet.png")));
+        // DPM = 1200
+        super(300, 2500000000L, 800, 50, 175, new Texture(Gdx.files.internal("sniper.png")), new Texture(Gdx.files.internal("bullet.png")));
     }
     
 }

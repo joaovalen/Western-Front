@@ -16,6 +16,6 @@ public class RunnerZombie extends Zombie{
     
     public RunnerZombie() {
         // Speed / Health / Damage / Atack speed / Textura
-        super(20, 200, 100, 1000000000, new Texture(Gdx.files.internal("zombie_runner.png")));
+        super(26, 200, 100, 1000000000, new Texture(Gdx.files.internal("zombie_runner.png")));
     }
 }

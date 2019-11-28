@@ -12,7 +12,7 @@ public class Barricade extends Soldier {
     
     public Barricade() {
         // Health, Reaload Time, Bullet Speed, Damage, Cost, Image, Bullet Image     
-        super(4000, 0, 0, 0, 50, new Texture(Gdx.files.internal("barricade.png")), null);
+        super(2600, 0, 0, 0, 50, new Texture(Gdx.files.internal("barricade.png")), null);
     }
     
  
