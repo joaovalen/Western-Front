@@ -16,7 +16,26 @@ public class Soldier extends Rectangle {
     private Square square;
     private int cost;
     private boolean firstAttack;
-
+    
+    public Soldier(int health, long reloadTime, int bulletSpeed, int damage, int cost, Texture imagem, Texture imagemBala) {
+            this.imagem = imagem;
+            this.width = imagem.getWidth(); 
+            this.height = imagem.getHeight();
+            this.imagem = imagem;
+            this.health = health;
+            this.reloadTime = reloadTime;
+            this.bulletSpeed = bulletSpeed;
+            this.damage = damage;
+            this.imagemBala = imagemBala;
+            this.cost = cost;
+            firstAttack = false;
+            lastShotTime = TimeUtils.nanoTime();
+        }
+    
+    public Soldier(){
+    
+    }
+   
     public boolean isFirstAttack() {
         return firstAttack;
     }
@@ -25,25 +44,6 @@ public class Soldier extends Rectangle {
         this.firstAttack = firstAttack;
     }
     
-    public Soldier(int health, long reloadTime, int bulletSpeed, int damage, int cost, Texture imagem, Texture imagemBala) {
-        this.imagem = imagem;
-        this.width = imagem.getWidth(); 
-        this.height = imagem.getHeight();
-        this.imagem = imagem;
-        this.health = health;
-        this.reloadTime = reloadTime;
-        this.bulletSpeed = bulletSpeed;
-        this.damage = damage;
-        this.imagemBala = imagemBala;
-        this.cost = cost;
-        firstAttack = false;
-        lastShotTime = TimeUtils.nanoTime();
-    }
-    
-    public Soldier(){
-    
-    }
-
     public int getCost() {
         return cost;
     }
@@ -115,7 +115,6 @@ public class Soldier extends Rectangle {
     public void setImagemBala(Texture imagemBala) {
         this.imagemBala = imagemBala;
     }
-    
     
     
 }

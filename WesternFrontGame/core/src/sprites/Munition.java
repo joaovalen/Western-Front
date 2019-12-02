@@ -1,8 +1,4 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
+
 package sprites;
 
 import com.badlogic.gdx.Gdx;
@@ -15,22 +11,6 @@ public class Munition extends Rectangle {
     private Texture image;
     private Support support;
     private int stopY;
-
-    public Texture getImage() {
-        return image;
-    }
-
-    public void setImage(Texture image) {
-        this.image = image;
-    }
-
-    public Support getSupport() {
-        return support;
-    }
-
-    public void setSupport(Support support) {
-        this.support = support;
-    }
 
     public Munition(Support support) {
         this.image = support.getImagemBala();
@@ -48,8 +28,24 @@ public class Munition extends Rectangle {
         this.x = random(230,700);
         this.y = Gdx.graphics.getWidth();
         this.stopY = random(70, 350);
+    }    
+    
+    public Texture getImage() {
+        return image;
     }
 
+    public void setImage(Texture image) {
+        this.image = image;
+    }
+
+    public Support getSupport() {
+        return support;
+    }
+
+    public void setSupport(Support support) {
+        this.support = support;
+    }
+    
     public int getStopY() {
         return stopY;
     }

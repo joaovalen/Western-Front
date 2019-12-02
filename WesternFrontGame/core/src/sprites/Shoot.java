@@ -1,11 +1,7 @@
 package sprites;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
-import java.util.ArrayList;
-
 
 public class Shoot extends Rectangle{
     
@@ -13,6 +9,11 @@ public class Shoot extends Rectangle{
     private int damage;
     private Texture imagem;
 
+    public Shoot(){
+        width = 30;
+        height = 8;
+    }
+        
     public int getDamage() {
         return damage;
     }
@@ -45,9 +46,5 @@ public class Shoot extends Rectangle{
         this.speed = speed;
     }
     
-    public Shoot(){
-        width = 30;
-        height = 8;
-    }
     
 }
