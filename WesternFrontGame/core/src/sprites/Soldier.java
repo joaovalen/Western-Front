@@ -7,14 +7,14 @@ import com.badlogic.gdx.utils.TimeUtils;
 public class Soldier extends Rectangle {
 
     private int health;
-    private Texture imagem;
-    private Texture imagemBala;
-    private long lastShotTime;
     private long reloadTime;
     private int bulletSpeed;
     private int damage;
-    private Square square;
     private int cost;
+    private Texture imagem;
+    private Texture imagemBala;
+    private long lastShotTime;
+    private Square square;
     private boolean firstAttack;
     
     public Soldier(int health, long reloadTime, int bulletSpeed, int damage, int cost, Texture imagem, Texture imagemBala) {

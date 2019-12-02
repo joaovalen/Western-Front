@@ -11,7 +11,7 @@ public class LandMine extends Soldier {
     
     public LandMine() {
         // Health, Reaload Time, Bullet Speed, Damage, Cost, Image, Bullet Image     
-        super(300, 400000000L, 0, 500, 25, new Texture(Gdx.files.internal("landmineOff.png")), null);
+        super(300, 400000000L, 0, 4000, 25, new Texture(Gdx.files.internal("landmineOff.png")), null);
         activated = false;
     }
     

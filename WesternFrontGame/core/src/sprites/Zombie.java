@@ -1,19 +1,16 @@
 package sprites;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.Sprite;
-import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 
 public class Zombie extends Rectangle{
     
     private int speed;
     private int health;
-    private Texture imagem;
-    private float lastAttackTime;
     private int damage;
     private int reloadTime;
+    private Texture imagem;
+    private float lastAttackTime;
     private boolean firstAttack = false;
     
     public Zombie(int speed, int health, int damage, int reloadTime, Texture imagem){
